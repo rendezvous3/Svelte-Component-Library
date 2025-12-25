@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/svelte';
 import ChatWidget from './ChatWidget.svelte';
 import ChatWidgetWithContent from './ChatWidgetWithContent.svelte';
+import ChatWidgetEnhanced from './ChatWidgetEnhanced.svelte';
+import ChatWidgetDarkMode from './ChatWidgetDarkMode.svelte';
 import ChatWidgetDecorator from './ChatWidgetDecorator.svelte';
 
 const meta = {
@@ -20,6 +22,10 @@ const meta = {
       Component: ChatWidgetDecorator as any,
     })
   ],
+  argTypes: {
+    darkMode: { control: 'boolean' },
+    expanded: { control: 'boolean' },
+  },
   argTypes: {
     position: {
       control: 'select',
@@ -64,6 +70,26 @@ export const TopLeft: Story = {
 export const WithContent: Story = {
   render: () => ({
     Component: ChatWidgetWithContent as any,
+  })
+};
+
+export const Enhanced: Story = {
+  render: () => ({
+    Component: ChatWidgetEnhanced as any,
+  })
+};
+
+export const Expanded: Story = {
+  args: {
+    position: 'bottom-right',
+    isOpen: true,
+    expanded: true,
+  },
+};
+
+export const DarkMode: Story = {
+  render: () => ({
+    Component: ChatWidgetDarkMode as any,
   })
 };
 

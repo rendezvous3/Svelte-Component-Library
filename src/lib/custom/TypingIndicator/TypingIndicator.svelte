@@ -78,5 +78,18 @@
       opacity: 1;
     }
   }
+
+  /* Dark mode */
+  :global(.dark) .typing-indicator,
+  :global([data-theme="dark"]) .typing-indicator {
+    --typing-color: #9ca3af;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .typing-indicator {
+      padding: 6px 10px;
+    }
+  }
 </style>
 

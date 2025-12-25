@@ -110,5 +110,23 @@
     max-width: 280px;
     min-width: 280px;
   }
+
+  /* Dark mode */
+  :global(.dark) .product-list__title,
+  :global([data-theme="dark"]) .product-list__title {
+    color: #f9fafb;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .product-list__item :global(.product-card) {
+      max-width: 260px;
+      min-width: 260px;
+    }
+
+    .product-list__title {
+      font-size: 18px;
+    }
+  }
 </style>
 

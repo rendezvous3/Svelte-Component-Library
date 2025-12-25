@@ -1,35 +1,54 @@
 <script lang="ts">
-  import WidgetIcon from '../WidgetIcon/WidgetIcon.svelte';
-  import Button from '../Button/Button.svelte';
-
   import type { Snippet } from 'svelte';
+  import WidgetIcon from '../WidgetIcon/WidgetIcon.svelte';
+  import ChatWindow from '../ChatWindow/ChatWindow.svelte';
+  import ChatInput from '../ChatInput/ChatInput.svelte';
 
   interface ChatWidgetProps {
     isOpen?: boolean;
     position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+    expanded?: boolean;
+    darkMode?: boolean;
+    subheader?: Snippet;
     onToggle?: () => void;
+    onExpand?: (expanded: boolean) => void;
+    onSend?: (message: string) => void;
+    onClose?: () => void;
     children?: Snippet;
   }
 
   let {
     isOpen = false,
     position = 'bottom-right',
+    expanded = false,
+    darkMode = false,
+    subheader,
     onToggle,
+    onExpand,
+    onSend,
+    onClose,
     children
   }: ChatWidgetProps = $props();
 
   let isWidgetOpen = $state(false);
+  let isExpanded = $state(expanded);
 
-  // Sync with prop
+  // Sync with props
   $effect(() => {
     isWidgetOpen = isOpen;
+  });
+
+  $effect(() => {
+    isExpanded = expanded;
   });
 
   let widgetClasses = $derived(
     [
       'chat-widget',
       `chat-widget--${position}`,
-      isWidgetOpen && 'chat-widget--open'
+      isWidgetOpen && 'chat-widget--open',
+      isExpanded && 'chat-widget--expanded',
+      darkMode && 'chat-widget--dark'
     ]
       .filter(Boolean)
       .join(' ')
@@ -39,9 +58,26 @@
     isWidgetOpen = !isWidgetOpen;
     onToggle?.();
   }
+
+  function handleExpand(expanded: boolean) {
+    isExpanded = expanded;
+    onExpand?.(expanded);
+  }
+
+  function handleClose() {
+    // Small delay to allow animation
+    setTimeout(() => {
+      isWidgetOpen = false;
+      onClose?.();
+    }, 200);
+  }
+
+  function handleSend(message: string) {
+    onSend?.(message);
+  }
 </script>
 
-<div class={widgetClasses}>
+<div class={widgetClasses} data-theme={darkMode ? 'dark' : 'light'}>
   {#if isWidgetOpen}
     <div class="chat-widget__window">
       <div class="chat-widget__header">
@@ -51,36 +87,41 @@
         </div>
         <button
           class="chat-widget__close"
-          onclick={toggleWidget}
+          onclick={handleClose}
           aria-label="Close chat"
           type="button"
         >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M15 5L5 15M5 5L15 15"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
+          <div class="chat-widget__close-icon">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M15 5L5 15M5 5L15 15"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
         </button>
       </div>
-      <div class="chat-widget__body">
+      
+      <ChatWindow {expanded} onExpand={handleExpand} subheader={subheader} showScrollButton={true}>
         {#if children}
           {@render children()}
-        {:else}
-          <div class="chat-widget__placeholder">
-            <WidgetIcon type="message-bubble" size="lg" color="#9ca3af" />
-            <p>Start a conversation</p>
-          </div>
         {/if}
+      </ChatWindow>
+
+      <div class="chat-widget__input-wrapper">
+        <ChatInput
+          placeholder="Type a message..."
+          onsend={handleSend}
+        />
       </div>
     </div>
   {/if}
@@ -197,6 +238,8 @@
   /* Chat window */
   .chat-widget__window {
     position: absolute;
+    bottom: 80px;
+    right: 0;
     width: 380px;
     max-width: calc(100vw - 40px);
     height: 600px;
@@ -211,24 +254,48 @@
     border: 1px solid rgba(0, 0, 0, 0.05);
   }
 
-  .chat-widget--bottom-right .chat-widget__window {
-    bottom: 80px;
-    right: 0;
-  }
-
   .chat-widget--bottom-left .chat-widget__window {
     bottom: 80px;
     left: 0;
+    right: auto;
   }
 
   .chat-widget--top-right .chat-widget__window {
+    bottom: auto;
     top: 80px;
     right: 0;
   }
 
   .chat-widget--top-left .chat-widget__window {
+    bottom: auto;
     top: 80px;
     left: 0;
+    right: auto;
+  }
+
+  .chat-widget--expanded .chat-widget__window {
+    width: 80vw;
+    max-width: 1200px;
+    height: 80vh;
+    max-height: 900px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    bottom: auto;
+    right: auto;
+    animation: expand-widget 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes expand-widget {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
   }
 
   @keyframes chat-widget-slide-up {
@@ -250,6 +317,7 @@
     align-items: center;
     justify-content: space-between;
     color: #ffffff;
+    flex-shrink: 0;
   }
 
   .chat-widget__header-content {
@@ -263,24 +331,30 @@
     font-weight: 600;
   }
 
+  /* Creative close button */
   .chat-widget__close {
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
+    position: relative;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    width: 32px;
-    height: 32px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #ffffff;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease-out;
-    color: #ffffff;
-    padding: 0;
   }
 
   .chat-widget__close:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.2);
     transform: scale(1.1);
+  }
+
+  .chat-widget__close:active {
+    transform: scale(0.9);
   }
 
   .chat-widget__close:focus-visible {
@@ -288,30 +362,50 @@
     outline-offset: 2px;
   }
 
-  /* Body */
-  .chat-widget__body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    background: #f9fafb;
-  }
-
-  .chat-widget__placeholder {
+  .chat-widget__close-icon {
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100%;
-    color: #9ca3af;
-    gap: 12px;
+    transition: transform 0.2s ease-out;
   }
 
-  .chat-widget__placeholder p {
-    margin: 0;
-    font-size: 14px;
+  .chat-widget__close-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Input wrapper */
+  .chat-widget__input-wrapper {
+    flex-shrink: 0;
+    padding: 16px;
+    background: rgba(249, 250, 251, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  /* Dark mode */
+  .chat-widget--dark .chat-widget__window {
+    background: #1f2937;
+  }
+
+  .chat-widget--dark .chat-widget__header {
+    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  }
+
+  .chat-widget--dark .chat-widget__input-wrapper {
+    background: rgba(31, 41, 55, 0.95);
+    border-top-color: rgba(255, 255, 255, 0.1);
   }
 
   /* Responsive */
+  @media (max-width: 968px) {
+    .chat-widget--expanded .chat-widget__window {
+      width: 95vw;
+      height: 90vh;
+    }
+  }
+
   @media (max-width: 640px) {
     .chat-widget__window {
       width: calc(100vw - 20px);
@@ -332,6 +426,20 @@
       left: 0;
       right: 0;
     }
+
+    .chat-widget--expanded .chat-widget__window {
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+      bottom: 0;
+      right: 0;
+      transform: none;
+    }
+
+    .chat-widget--bottom-left.chat-widget--expanded .chat-widget__window,
+    .chat-widget--top-right.chat-widget--expanded .chat-widget__window,
+    .chat-widget--top-left.chat-widget--expanded .chat-widget__window {
+      transform: none;
+    }
   }
 </style>
-

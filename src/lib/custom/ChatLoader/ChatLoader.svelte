@@ -188,5 +188,29 @@
       opacity: 1;
     }
   }
+
+  /* Dark mode */
+  :global(.dark) .chat-loader,
+  :global([data-theme="dark"]) .chat-loader {
+    --loader-color: #60a5fa;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .chat-loader--sm {
+      --dot-size: 5px;
+      --pulse-size: 18px;
+    }
+
+    .chat-loader--md {
+      --dot-size: 7px;
+      --pulse-size: 28px;
+    }
+
+    .chat-loader--lg {
+      --dot-size: 10px;
+      --pulse-size: 44px;
+    }
+  }
 </style>
 

@@ -148,5 +148,29 @@
     width: 32px;
     height: 32px;
   }
+
+  /* Dark mode - icons adapt to theme */
+  :global(.dark) .widget-icon,
+  :global([data-theme="dark"]) .widget-icon {
+    /* Icons use currentColor, so they'll adapt automatically */
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .widget-icon--sm {
+      width: 14px;
+      height: 14px;
+    }
+
+    .widget-icon--md {
+      width: 20px;
+      height: 20px;
+    }
+
+    .widget-icon--lg {
+      width: 28px;
+      height: 28px;
+    }
+  }
 </style>
 

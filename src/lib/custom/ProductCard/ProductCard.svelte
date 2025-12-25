@@ -209,5 +209,48 @@
   .product-card :global(.btn) {
     margin-top: 4px;
   }
+
+  /* Dark mode */
+  :global(.dark) .product-card,
+  :global([data-theme="dark"]) .product-card {
+    background: #1f2937;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  :global(.dark) .product-card:hover,
+  :global([data-theme="dark"]) .product-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  :global(.dark) .product-card__title,
+  :global([data-theme="dark"]) .product-card__title {
+    color: #f9fafb;
+  }
+
+  :global(.dark) .product-card__price,
+  :global([data-theme="dark"]) .product-card__price {
+    color: #f9fafb;
+  }
+
+  :global(.dark) .product-card__image-wrapper,
+  :global([data-theme="dark"]) .product-card__image-wrapper {
+    background: #374151;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .product-card {
+      max-width: 100%;
+      min-width: 100%;
+    }
+
+    .product-card__title {
+      font-size: 15px;
+    }
+
+    .product-card__price {
+      font-size: 18px;
+    }
+  }
 </style>
 

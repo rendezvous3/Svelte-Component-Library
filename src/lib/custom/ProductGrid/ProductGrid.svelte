@@ -107,5 +107,18 @@
     max-width: 100%;
     width: 100%;
   }
+
+  /* Dark mode */
+  :global(.dark) .product-grid__title,
+  :global([data-theme="dark"]) .product-grid__title {
+    color: #f9fafb;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .product-grid__title {
+      font-size: 18px;
+    }
+  }
 </style>
 

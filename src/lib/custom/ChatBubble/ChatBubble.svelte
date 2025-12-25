@@ -305,5 +305,48 @@
   .chat-bubble--expandable.chat-bubble--expanded .chat-bubble__content::after {
     display: none;
   }
+
+  /* Dark mode */
+  :global(.dark) .chat-bubble,
+  :global([data-theme="dark"]) .chat-bubble {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  :global(.dark) .chat-bubble--user,
+  :global([data-theme="dark"]) .chat-bubble--user {
+    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+    box-shadow: 0 4px 16px rgba(30, 64, 175, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  }
+
+  :global(.dark) .chat-bubble--assistant,
+  :global([data-theme="dark"]) .chat-bubble--assistant {
+    background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+    color: #f9fafb;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  }
+
+  :global(.dark) .chat-bubble--system,
+  :global([data-theme="dark"]) .chat-bubble--system {
+    background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+    color: #fef3c7;
+    box-shadow: 0 4px 16px rgba(146, 64, 14, 0.3), 0 0 0 1px rgba(254, 243, 199, 0.2) inset;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .chat-bubble {
+      max-width: 90%;
+      min-width: 180px;
+      padding: 12px 16px;
+      font-size: 14px;
+    }
+
+    .chat-bubble__expand-toggle {
+      width: 28px;
+      height: 28px;
+      bottom: 10px;
+      right: 10px;
+    }
+  }
 </style>
 
