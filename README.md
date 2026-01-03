@@ -25,6 +25,14 @@ Install dependencies:
 npm install
 ```
 
+### Build Storybook
+
+Build a static version of Storybook:
+
+```sh
+npm run build-storybook
+```
+
 ## Development
 
 ### Run Development Server
@@ -76,14 +84,6 @@ Preview the production build:
 
 ```sh
 npm run preview
-```
-
-### Build Storybook
-
-Build a static version of Storybook:
-
-```sh
-npm run build-storybook
 ```
 
 ## Project Structure
