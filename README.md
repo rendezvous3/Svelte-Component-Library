@@ -30,7 +30,7 @@ npm install
 Build a static version of Storybook:
 
 ```sh
-npm run build-storybook
+npm run storybook
 ```
 
 ## Development
