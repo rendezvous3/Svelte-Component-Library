@@ -23,6 +23,42 @@ This is a component library built with Svelte 5, TypeScript, and Storybook. The 
 - Check `src/lib/custom/` for custom CSS components
 - Check `src/lib/tailwind/` for Tailwind components
 
+## Component Inventory
+
+### Custom CSS Components (`src/lib/custom/`)
+
+#### Chat Components Suite
+A complete set of components for building chat interfaces:
+
+- **ChatBubble** - Individual message bubbles with variants (user, assistant, system). Supports expandable content, rich text, and custom styling.
+- **ChatInput** - Input field for chat messages with send functionality, file attachments, emoji support, and character counting.
+- **ChatLoader** - Loading indicator specifically designed for chat interfaces with animated dots.
+- **ChatMessage** - Complete message component that combines ChatBubble with product recommendations support, timestamps, and action handlers.
+- **ChatWidget** - Floating chat widget with expand/collapse functionality, dark mode support, and customizable positioning.
+- **ChatWindow** - Main chat window container with scrolling, subheader support, and expandable fullscreen mode.
+- **TypingIndicator** - Animated typing indicator for showing when someone is typing in chat.
+
+#### Form Components
+- **Button** - Button component with multiple variants (primary, secondary, danger, etc.) and size options.
+- **Checkbox** - Checkbox input with validation states (error, success), indeterminate state, and label/description support.
+- **Input** - Text input field with variants, sizes, and validation states.
+
+#### Product Components
+- **ProductCard** - Individual product card display with image, title, price, rating, and discount badges.
+- **ProductGrid** - Grid layout component for displaying multiple products in a responsive grid.
+- **ProductList** - List layout component for displaying products in a vertical list format.
+- **ProductRecommendation** - Product recommendation component designed to be embedded in chat messages, supporting multiple layout options (carousel, compact-list, grid, bubble-grid).
+
+**Note:** `ProductCarousel` folder exists but is not yet implemented.
+
+#### UI Components
+- **ThemeToggle** - Theme switcher component for toggling between light and dark modes.
+- **WidgetIcon** - Icon component for widgets with customizable size and styling.
+
+### Tailwind Components (`src/lib/tailwind/`)
+
+- **Button** - Button component built with Tailwind CSS utility classes, matching the custom Button's API but using Tailwind for styling.
+
 ## Critical: Svelte 5 Syntax Only
 
 ### ✅ Use Svelte 5 Runes
