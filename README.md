@@ -1,22 +1,35 @@
-# sv
+# Component Library
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A Svelte 5 component library built with TypeScript and Storybook, featuring reusable UI components organized into two sections: custom CSS components and Tailwind CSS components.
 
-## Creating a project
+## Project Overview
 
-If you're seeing this, you've probably already done this step. Congrats!
+This component library provides production-ready, reusable UI components that can be shared across multiple projects. Components are organized into two main categories:
+
+- **Custom CSS Components** (`src/lib/custom/`) - Hand-crafted components with custom CSS, no framework dependencies
+- **Tailwind Components** (`src/lib/tailwind/`) - Components built with Tailwind CSS utility classes
+
+### Tech Stack
+
+- **Svelte 5** (latest with runes)
+- **TypeScript** (strict mode)
+- **Vite** (build tool)
+- **Storybook** (component documentation)
+- **Tailwind CSS** (utility-first styling)
+
+## Getting Started
+
+Install dependencies:
 
 ```sh
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
+npm install
 ```
 
-## Developing
+## Development
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+### Run Development Server
+
+Start the SvelteKit development server:
 
 ```sh
 npm run dev
@@ -25,14 +38,71 @@ npm run dev
 npm run dev -- --open
 ```
 
+### Run Storybook
+
+Start Storybook to view and interact with components:
+
+```sh
+npm run storybook
+```
+
+Storybook will be available at `http://localhost:6006`
+
+### Type Checking
+
+Run TypeScript type checking:
+
+```sh
+npm run check
+```
+
+Run type checking in watch mode:
+
+```sh
+npm run check:watch
+```
+
 ## Building
 
-To create a production version of your app:
+### Build Application
+
+To create a production version of the app:
 
 ```sh
 npm run build
 ```
 
-You can preview the production build with `npm run preview`.
+Preview the production build:
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+```sh
+npm run preview
+```
+
+### Build Storybook
+
+Build a static version of Storybook:
+
+```sh
+npm run build-storybook
+```
+
+## Project Structure
+
+```
+src/
+├── lib/
+│   ├── custom/           # Custom CSS components
+│   │   └── ComponentName/
+│   │       ├── ComponentName.svelte
+│   │       └── ComponentName.stories.ts
+│   ├── tailwind/         # Tailwind CSS components
+│   │   └── ComponentName/
+│   │       ├── ComponentName.svelte
+│   │       └── ComponentName.stories.ts
+│   ├── utils/            # Helper functions
+│   ├── types/            # TypeScript definitions
+│   └── icons/            # Icon components
+└── routes/               # Demo pages
+```
+
+Components are organized by name in their respective directories (`custom/` or `tailwind/`), with each component having its own `.svelte` file and corresponding `.stories.ts` file for Storybook documentation.
