@@ -20,7 +20,6 @@
     headerStyle?: 'flat' | 'wavy' | 'glass' | 'minimal' | 'none';
   }
 
-
   let {
     isOpen = false,
     position = 'bottom-right',
