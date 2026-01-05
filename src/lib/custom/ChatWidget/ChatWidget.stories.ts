@@ -4,6 +4,7 @@ import ChatWidgetWithContent from './ChatWidgetWithContent.svelte';
 import ChatWidgetEnhanced from './ChatWidgetEnhanced.svelte';
 import ChatWidgetDarkMode from './ChatWidgetDarkMode.svelte';
 import ChatWidgetDecorator from './ChatWidgetDecorator.svelte';
+import ChatWidgetHeaderStyles from './ChatWidgetHeaderStyles.svelte';
 
 const meta = {
   title: 'Custom/ChatWidget',
@@ -25,13 +26,19 @@ const meta = {
   argTypes: {
     darkMode: { control: 'boolean' },
     expanded: { control: 'boolean' },
-  },
-  argTypes: {
     position: {
       control: 'select',
       options: ['bottom-right', 'bottom-left', 'top-right', 'top-left']
     },
     isOpen: { control: 'boolean' },
+    expandIcon: {
+      control: 'select',
+      options: ['grid', 'arrows', 'maximize', 'chevrons', 'plus-minus', 'corner', 'diagonal', 'dots', 'lines', 'square']
+    },
+    headerStyle: {
+      control: 'select',
+      options: ['flat', 'wavy', 'glass', 'minimal', 'none']
+    },
     onToggle: { action: 'toggled' }
   },
 } satisfies Meta<any>;
@@ -90,6 +97,62 @@ export const Expanded: Story = {
 export const DarkMode: Story = {
   render: () => ({
     Component: ChatWidgetDarkMode as any,
+  })
+};
+
+export const HeaderStyleWavy: Story = {
+  args: {
+    position: 'bottom-right',
+    isOpen: true,
+    expanded: false,
+    headerStyle: 'wavy',
+    expandIcon: 'arrows',
+  },
+};
+
+export const HeaderStyleGlass: Story = {
+  args: {
+    position: 'bottom-right',
+    isOpen: true,
+    expanded: false,
+    headerStyle: 'glass',
+    expandIcon: 'arrows',
+  },
+};
+
+export const HeaderStyleMinimal: Story = {
+  args: {
+    position: 'bottom-right',
+    isOpen: true,
+    expanded: false,
+    headerStyle: 'minimal',
+    expandIcon: 'arrows',
+  },
+};
+
+export const HeaderStyleNone: Story = {
+  args: {
+    position: 'bottom-right',
+    isOpen: true,
+    expanded: false,
+    headerStyle: 'none',
+    expandIcon: 'arrows',
+  },
+};
+
+export const ExpandIconOptions: Story = {
+  args: {
+    position: 'bottom-right',
+    isOpen: true,
+    expanded: false,
+    headerStyle: 'wavy',
+    expandIcon: 'corner',
+  },
+};
+
+export const AllHeaderStyles: Story = {
+  render: () => ({
+    Component: ChatWidgetHeaderStyles as any,
   })
 };
 

@@ -9,6 +9,7 @@
     showScrollButton?: boolean;
     children?: Snippet;
     subheaderSlot?: Snippet;
+    expandIcon?: 'grid' | 'arrows' | 'maximize' | 'chevrons' | 'plus-minus' | 'corner' | 'diagonal' | 'dots' | 'lines' | 'square';
   }
 
   let {
@@ -17,7 +18,8 @@
     subheader,
     subheaderSlot,
     showScrollButton = true,
-    children
+    children,
+    expandIcon = 'dots'
   }: ChatWindowProps = $props();
 
   let isExpanded = $state(expanded);
@@ -105,18 +107,146 @@
     aria-label={isExpanded ? 'Collapse chat' : 'Expand chat'}
     type="button"
   >
-    {#if isExpanded}
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 4H8V8H4V4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M12 4H16V8H12V4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M4 12H8V16H4V12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M12 12H16V16H12V12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+    {#if expandIcon === 'arrows'}
+      {#if isExpanded}
+        <!-- Inward arrows (collapse) -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 5L10 10M10 10L15 5M10 10L10 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M15 15L10 10M10 10L5 15M10 10L10 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      {:else}
+        <!-- Outward arrows (expand) -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 15L10 10M10 10L15 15M10 10L10 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M15 5L10 10M10 10L5 5M10 10L10 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      {/if}
+    {:else if expandIcon === 'maximize'}
+      {#if isExpanded}
+        <!-- Minimize icon -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 10H15M10 5V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      {:else}
+        <!-- Maximize icon -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 5H15V15H5V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5 5L15 15M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      {/if}
+    {:else if expandIcon === 'chevrons'}
+      {#if isExpanded}
+        <!-- Inward chevrons (collapse) -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 7L10 10L13 7M7 13L10 10L13 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      {:else}
+        <!-- Outward chevrons (expand) -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13 7L10 10L7 7M13 13L10 10L7 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      {/if}
+    {:else if expandIcon === 'plus-minus'}
+      {#if isExpanded}
+        <!-- Minus in circle (collapse) -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2"/>
+          <path d="M6 10H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      {:else}
+        <!-- Plus in circle (expand) -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2"/>
+          <path d="M10 6V14M6 10H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      {/if}
+    {:else if expandIcon === 'corner'}
+      {#if isExpanded}
+        <!-- Corner in (collapse) -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 5H10V10H5V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 10H15V15H10V10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      {:else}
+        <!-- Corner out (expand) -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 5H10V10H5V5Z" fill="currentColor" opacity="0.2"/>
+          <path d="M5 5H10V10H5V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 10H15V15H10V10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      {/if}
+    {:else if expandIcon === 'diagonal'}
+      {#if isExpanded}
+        <!-- Diagonal arrows in (collapse) -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 5L10 10M15 5L10 10M10 10L5 15M10 10L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      {:else}
+        <!-- Diagonal arrows out (expand) -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 15L10 10M15 15L10 10M10 10L5 5M10 10L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      {/if}
+    {:else if expandIcon === 'dots'}
+      {#if isExpanded}
+        <!-- Dots in (collapse) -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="10" cy="10" r="2" fill="currentColor"/>
+          <circle cx="5" cy="5" r="1.5" fill="currentColor" opacity="0.5"/>
+          <circle cx="15" cy="5" r="1.5" fill="currentColor" opacity="0.5"/>
+          <circle cx="5" cy="15" r="1.5" fill="currentColor" opacity="0.5"/>
+          <circle cx="15" cy="15" r="1.5" fill="currentColor" opacity="0.5"/>
+        </svg>
+      {:else}
+        <!-- Dots out (expand) -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="10" cy="10" r="1.5" fill="currentColor" opacity="0.5"/>
+          <circle cx="5" cy="5" r="2" fill="currentColor"/>
+          <circle cx="15" cy="5" r="2" fill="currentColor"/>
+          <circle cx="5" cy="15" r="2" fill="currentColor"/>
+          <circle cx="15" cy="15" r="2" fill="currentColor"/>
+        </svg>
+      {/if}
+    {:else if expandIcon === 'lines'}
+      {#if isExpanded}
+        <!-- Lines in (collapse) -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 10H15M10 5V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      {:else}
+        <!-- Lines out (expand) -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 5H15M5 15H15M5 5V15M15 5V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      {/if}
+    {:else if expandIcon === 'square'}
+      {#if isExpanded}
+        <!-- Square minimize (collapse) -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="6" y="6" width="8" height="8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      {:else}
+        <!-- Square maximize (expand) -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="14" height="14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3 8H17M8 3V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      {/if}
     {:else}
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
-        <path d="M3 8H17M8 3V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      </svg>
+      <!-- Default: grid icon -->
+      {#if isExpanded}
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 4H8V8H4V4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 4H16V8H12V4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 12H8V16H4V12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 12H16V16H12V12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      {:else}
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+          <path d="M3 8H17M8 3V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      {/if}
     {/if}
   </button>
 </div>
@@ -126,7 +256,8 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     background: #ffffff;
     border-radius: 20px;
     overflow: hidden;
@@ -147,6 +278,7 @@
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(0, 0, 0, 0.1);
     animation: expand-window 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    flex: none;
   }
 
   @keyframes expand-window {
@@ -180,6 +312,7 @@
     gap: 12px;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
+    background: #f9fafa;
   }
 
   .chat-window__messages::-webkit-scrollbar {

@@ -27,7 +27,8 @@
   );
   let finalPrice = $derived(price);
 
-  function formatPrice(value: number): string {
+  function formatPrice(value: number | null | undefined): string {
+    if (value == null || isNaN(value)) return '$0.00';
     return `$${value.toFixed(2)}`;
   }
 
@@ -65,7 +66,7 @@
             />
           </svg>
         {/each}
-        <span class="product-card__rating-value">{rating.toFixed(1)}</span>
+        <span class="product-card__rating-value">{rating != null ? rating.toFixed(1) : '0.0'}</span>
       </div>
     {/if}
     

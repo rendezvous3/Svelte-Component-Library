@@ -57,7 +57,7 @@
               {#if description}
                 <p class="product-recommendation__compact-description">{description}</p>
               {/if}
-              <div class="product-recommendation__compact-price">${product.price.toFixed(2)}</div>
+              <div class="product-recommendation__compact-price">${product.price != null ? product.price.toFixed(2) : '0.00'}</div>
             </div>
             <button
               class="product-recommendation__compact-button"

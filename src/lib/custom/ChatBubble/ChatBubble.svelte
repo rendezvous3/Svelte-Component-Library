@@ -146,19 +146,20 @@
 
   /* Variant styles */
   .chat-bubble--user {
-    background: linear-gradient(135deg, var(--chat-bubble-user-bg) 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #24c6d5 0%, #25b4e4 100%);
     color: var(--chat-bubble-user-text);
     margin-left: auto;
     border-bottom-right-radius: 6px;
-    box-shadow: 0 4px 16px var(--chat-bubble-user-shadow), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+    box-shadow: 0 4px 16px rgba(36, 198, 213, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
   }
 
   .chat-bubble--assistant {
-    background: linear-gradient(135deg, var(--chat-bubble-assistant-bg) 0%, #e5e7eb 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     color: var(--chat-bubble-assistant-text);
     margin-right: auto;
     border-bottom-left-radius: 6px;
-    box-shadow: 0 4px 16px var(--chat-bubble-assistant-shadow), 0 0 0 1px rgba(0, 0, 0, 0.05) inset;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.08) inset;
+    border: 1px solid rgba(0, 0, 0, 0.08);
   }
 
   .chat-bubble--system {

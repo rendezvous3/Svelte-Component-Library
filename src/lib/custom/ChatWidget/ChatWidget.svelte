@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import WidgetIcon from '../WidgetIcon/WidgetIcon.svelte';
+  import ChatHeader from '../ChatHeader/ChatHeader.svelte';
   import ChatWindow from '../ChatWindow/ChatWindow.svelte';
   import ChatInput from '../ChatInput/ChatInput.svelte';
 
@@ -15,6 +16,8 @@
     onSend?: (message: string) => void;
     onClose?: () => void;
     children?: Snippet;
+    expandIcon?: 'grid' | 'arrows' | 'maximize' | 'chevrons' | 'plus-minus' | 'corner' | 'diagonal' | 'dots' | 'lines' | 'square';
+    headerStyle?: 'flat' | 'wavy' | 'glass' | 'minimal' | 'none';
   }
 
   let {
@@ -27,20 +30,19 @@
     onExpand,
     onSend,
     onClose,
-    children
+    children,
+    expandIcon = 'dots',
+    headerStyle = 'wavy'
   }: ChatWidgetProps = $props();
 
-  let isWidgetOpen = $state(false);
-  let isExpanded = $state(expanded);
-
-  // Sync with props
-  $effect(() => {
-    isWidgetOpen = isOpen;
-  });
-
-  $effect(() => {
-    isExpanded = expanded;
-  });
+  // Use prop directly when parent controls it, otherwise use internal state
+  let internalIsOpen = $state(false);
+  let internalIsExpanded = $state(false);
+  
+  // If onToggle is provided, we're in controlled mode - use prop directly
+  // Otherwise use internal state
+  let isWidgetOpen = $derived(onToggle ? isOpen : internalIsOpen);
+  let isExpanded = $derived(onExpand ? expanded : internalIsExpanded);
 
   let widgetClasses = $derived(
     [
@@ -48,20 +50,31 @@
       `chat-widget--${position}`,
       isWidgetOpen && 'chat-widget--open',
       isExpanded && 'chat-widget--expanded',
-      darkMode && 'chat-widget--dark'
+      darkMode && 'chat-widget--dark',
+      `chat-widget--header-${headerStyle}`
     ]
       .filter(Boolean)
       .join(' ')
   );
 
   function toggleWidget() {
-    isWidgetOpen = !isWidgetOpen;
-    onToggle?.();
+    if (onToggle) {
+      // Controlled mode: update parent via callback
+      onToggle();
+    } else {
+      // Uncontrolled mode: update internal state
+      internalIsOpen = !internalIsOpen;
+    }
   }
 
   function handleExpand(expanded: boolean) {
-    isExpanded = expanded;
-    onExpand?.(expanded);
+    if (onExpand) {
+      // Controlled mode: update parent via callback
+      onExpand(expanded);
+    } else {
+      // Uncontrolled mode: update internal state
+      internalIsExpanded = expanded;
+    }
   }
 
   function handleClose() {
@@ -77,41 +90,17 @@
   }
 </script>
 
-<div class={widgetClasses} data-theme={darkMode ? 'dark' : 'light'}>
+  <div class={widgetClasses} data-theme={darkMode ? 'dark' : 'light'}>
   {#if isWidgetOpen}
     <div class="chat-widget__window">
-      <div class="chat-widget__header">
-        <div class="chat-widget__header-content">
-          <WidgetIcon type="message-bubble" size="sm" color="#ffffff" />
-          <span class="chat-widget__title">Chat Support</span>
-        </div>
-        <button
-          class="chat-widget__close"
-          onclick={handleClose}
-          aria-label="Close chat"
-          type="button"
-        >
-          <div class="chat-widget__close-icon">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M15 5L5 15M5 5L15 15"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </div>
-        </button>
-      </div>
+      <ChatHeader
+        title="Chat Support"
+        style={headerStyle}
+        darkMode={darkMode}
+        onClose={handleClose}
+      />
       
-      <ChatWindow {expanded} onExpand={handleExpand} subheader={subheader} showScrollButton={true}>
+      <ChatWindow {expanded} onExpand={handleExpand} subheader={subheader} showScrollButton={true} expandIcon={expandIcon}>
         {#if children}
           {@render children()}
         {/if}
@@ -309,70 +298,6 @@
     }
   }
 
-  /* Header */
-  .chat-widget__header {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: #ffffff;
-    flex-shrink: 0;
-  }
-
-  .chat-widget__header-content {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .chat-widget__title {
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  /* Creative close button */
-  .chat-widget__close {
-    position: relative;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    color: #ffffff;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .chat-widget__close:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: scale(1.1);
-  }
-
-  .chat-widget__close:active {
-    transform: scale(0.9);
-  }
-
-  .chat-widget__close:focus-visible {
-    outline: 2px solid rgba(255, 255, 255, 0.5);
-    outline-offset: 2px;
-  }
-
-  .chat-widget__close-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s ease-out;
-  }
-
-  .chat-widget__close-icon svg {
-    width: 20px;
-    height: 20px;
-  }
 
   /* Input wrapper */
   .chat-widget__input-wrapper {
@@ -382,6 +307,17 @@
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-top: 1px solid rgba(0, 0, 0, 0.05);
+    z-index: 10;
+    position: relative;
+  }
+
+  /* Ensure input wrapper is visible when expanded */
+  .chat-widget--expanded .chat-widget__input-wrapper {
+    display: flex !important;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10001;
+    background: rgba(249, 250, 251, 0.98);
   }
 
   /* Dark mode */
@@ -389,9 +325,6 @@
     background: #1f2937;
   }
 
-  .chat-widget--dark .chat-widget__header {
-    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-  }
 
   .chat-widget--dark .chat-widget__input-wrapper {
     background: rgba(31, 41, 55, 0.95);
