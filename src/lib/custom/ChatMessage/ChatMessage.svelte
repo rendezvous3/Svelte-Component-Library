@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { getContext } from 'svelte';
   import ChatBubble from '../ChatBubble/ChatBubble.svelte';
   import ProductRecommendation from '../ProductRecommendation/ProductRecommendation.svelte';
 
@@ -22,6 +23,9 @@
     productsInBubble?: boolean;
     onAddToCart?: (product: Product) => void;
     onAction?: (action: string, message: string) => void;
+    userBubbleBackgroundColor?: string;
+    themeBackgroundColor?: string;
+    showHoverActions?: boolean;
   }
 
   let {
@@ -33,17 +37,52 @@
     recommendationLayout = 'compact-list',
     productsInBubble = true,
     onAddToCart,
-    onAction
+    onAction,
+    userBubbleBackgroundColor,
+    themeBackgroundColor,
+    showHoverActions = false
   }: ChatMessageProps = $props();
 
+  // Get themeBackgroundColor from context (provided by ChatWidget) as fallback
+  let contextThemeStore = getContext<{ value: string | undefined } | undefined>('themeBackgroundColor');
+  let effectiveThemeColor = $derived(themeBackgroundColor ?? contextThemeStore?.value);
+
   let showActions = $state(false);
+  let actionsTimeout: ReturnType<typeof setTimeout> | null = $state(null);
 
   function handleAction(action: string) {
     onAction?.(action, children ? 'message' : '');
   }
+
+  function handleMouseEnter() {
+    if (actionsTimeout) {
+      clearTimeout(actionsTimeout);
+      actionsTimeout = null;
+    }
+    if (showHoverActions) {
+      showActions = true;
+    }
+  }
+
+  function handleMouseLeave() {
+    // Add a small delay before hiding to allow clicking
+    actionsTimeout = setTimeout(() => {
+      showActions = false;
+      actionsTimeout = null;
+    }, 200);
+  }
+
+  let messageClasses = $derived(
+    [
+      'chat-message',
+      showHoverActions && 'chat-message--hoverable'
+    ]
+      .filter(Boolean)
+      .join(' ')
+  );
 </script>
 
-<div class="chat-message" onmouseenter={() => showActions = true} onmouseleave={() => showActions = false}>
+<div class={messageClasses} role="group" onmouseenter={handleMouseEnter} onmouseleave={handleMouseLeave}>
   {#if products && products.length > 0 && !productsInBubble}
     <div class="chat-message__products-outside">
       <ProductRecommendation
@@ -54,24 +93,25 @@
     </div>
   {/if}
   
-  <ChatBubble {variant} {sender} {timestamp}>
-    {#if children}
-      {@render children()}
-    {/if}
-    
-    {#if products && products.length > 0 && productsInBubble}
-      <div class="chat-message__products">
-        <ProductRecommendation
-          products={products}
-          layout={recommendationLayout}
-          onAddToCart={onAddToCart}
-        />
-      </div>
-    {/if}
-  </ChatBubble>
+  <div class="chat-message__bubble-wrapper">
+    <ChatBubble {variant} {sender} {timestamp} userBubbleBackgroundColor={userBubbleBackgroundColor ?? effectiveThemeColor}>
+      {#if children}
+        {@render children()}
+      {/if}
+      
+      {#if products && products.length > 0 && productsInBubble}
+        <div class="chat-message__products">
+          <ProductRecommendation
+            products={products}
+            layout={recommendationLayout}
+            onAddToCart={onAddToCart}
+          />
+        </div>
+      {/if}
+    </ChatBubble>
 
-  {#if showActions && variant !== 'system'}
-    <div class="chat-message__actions">
+    {#if showActions && showHoverActions && variant !== 'system'}
+      <div class="chat-message__actions" role="group" onmouseenter={handleMouseEnter} onmouseleave={handleMouseLeave}>
       <button
         class="chat-message__action"
         onclick={() => handleAction('copy')}
@@ -106,8 +146,9 @@
           <path d="M8 2L3 7L8 12M3 7H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
-    </div>
-  {/if}
+      </div>
+    {/if}
+  </div>
 </div>
 
 <style>
@@ -116,6 +157,26 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+  }
+
+  .chat-message--hoverable {
+    cursor: pointer;
+  }
+
+  .chat-message__bubble-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    max-width: 85%;
+  }
+
+  .chat-message__bubble-wrapper:has(:global(.chat-bubble--user)) {
+    margin-left: auto;
+  }
+
+  .chat-message__bubble-wrapper:has(:global(.chat-bubble--assistant)) {
+    margin-right: auto;
   }
 
   .chat-message__products {
@@ -127,7 +188,12 @@
   }
 
   .chat-message__actions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 4px;
     display: flex;
+    justify-content: flex-start;
     gap: 4px;
     padding: 4px;
     background: rgba(255, 255, 255, 0.95);
@@ -137,6 +203,9 @@
     border-radius: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     animation: fade-in 0.2s ease-out;
+    width: 100%;
+    z-index: 10;
+    box-sizing: border-box;
   }
 
   @keyframes fade-in {

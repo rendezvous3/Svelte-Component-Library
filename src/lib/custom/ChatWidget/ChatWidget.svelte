@@ -1,9 +1,18 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { setContext } from 'svelte';
   import WidgetIcon from '../WidgetIcon/WidgetIcon.svelte';
   import ChatHeader from '../ChatHeader/ChatHeader.svelte';
   import ChatWindow from '../ChatWindow/ChatWindow.svelte';
   import ChatInput from '../ChatInput/ChatInput.svelte';
+
+  interface MenuItem {
+    id: string;
+    label: string;
+    icon?: string;
+    iconType?: 'svg' | 'emoji';
+    onClick?: () => void;
+  }
 
   interface ChatWidgetProps {
     isOpen?: boolean;
@@ -18,6 +27,14 @@
     children?: Snippet;
     expandIcon?: 'grid' | 'arrows' | 'maximize' | 'chevrons' | 'plus-minus' | 'corner' | 'diagonal' | 'dots' | 'lines' | 'square';
     headerStyle?: 'flat' | 'wavy' | 'glass' | 'minimal' | 'none';
+    menuItems?: MenuItem[];
+    menuPosition?: 'left' | 'right';
+    menuMode?: 'dropdown' | 'sidebar';
+    onMenuItemClick?: (itemId: string) => void;
+    title?: string;
+    themeBackgroundColor?: string;
+    headerBackgroundColor?: string;
+    widgetButtonBackgroundColor?: string;
   }
 
   let {
@@ -32,8 +49,26 @@
     onClose,
     children,
     expandIcon = 'dots',
-    headerStyle = 'wavy'
+    headerStyle = 'wavy',
+    menuItems,
+    menuPosition = 'left',
+    menuMode = 'sidebar',
+    onMenuItemClick,
+    title = 'Chat Support',
+    themeBackgroundColor,
+    headerBackgroundColor,
+    widgetButtonBackgroundColor
   }: ChatWidgetProps = $props();
+
+  // Provide themeBackgroundColor to child components via context
+  // Use a reactive store-like object that updates when themeBackgroundColor changes
+  let themeContext = $state<{ value: string | undefined }>({ value: undefined });
+  setContext('themeBackgroundColor', themeContext);
+  
+  // Update context when themeBackgroundColor prop changes
+  $effect(() => {
+    themeContext.value = themeBackgroundColor;
+  });
 
   // Use prop directly when parent controls it, otherwise use internal state
   let internalIsOpen = $state(false);
@@ -94,10 +129,15 @@
   {#if isWidgetOpen}
     <div class="chat-widget__window">
       <ChatHeader
-        title="Chat Support"
+        title={title}
         style={headerStyle}
         darkMode={darkMode}
         onClose={handleClose}
+        menuItems={menuItems}
+        menuPosition={menuPosition}
+        menuMode={menuMode}
+        onMenuItemClick={onMenuItemClick}
+        headerBackgroundColor={headerBackgroundColor ?? themeBackgroundColor}
       />
       
       <ChatWindow {expanded} onExpand={handleExpand} subheader={subheader} showScrollButton={true} expandIcon={expandIcon}>
@@ -121,6 +161,7 @@
     aria-label={isWidgetOpen ? 'Close chat' : 'Open chat'}
     aria-expanded={isWidgetOpen}
     type="button"
+    style="{(widgetButtonBackgroundColor ?? themeBackgroundColor) ? `--chat-widget-button-bg: ${widgetButtonBackgroundColor ?? themeBackgroundColor};` : ''}"
   >
     {#if isWidgetOpen}
       <svg
@@ -179,7 +220,7 @@
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: var(--chat-widget-button-bg, linear-gradient(135deg, #3b82f6 0%, #2563eb 100%));
     border: none;
     box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4), 0 4px 12px rgba(0, 0, 0, 0.15);
     cursor: pointer;
@@ -229,9 +270,11 @@
     position: absolute;
     bottom: 80px;
     right: 0;
-    width: 380px;
+    /* width: 380px; */
+    width: 426px;
     max-width: calc(100vw - 40px);
-    height: 600px;
+    height: 698px;
+    /* height: 600px; */
     max-height: calc(100vh - 120px);
     background: #ffffff;
     border-radius: 20px;
@@ -241,6 +284,7 @@
     overflow: hidden;
     animation: chat-widget-slide-up 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid rgba(0, 0, 0, 0.05);
+    /* Provide positioning context for contained menus - window is already positioned, so it creates containing block */
   }
 
   .chat-widget--bottom-left .chat-widget__window {
