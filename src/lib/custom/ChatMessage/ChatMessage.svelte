@@ -11,6 +11,7 @@
     originalPrice?: number;
     rating?: number;
     discount?: number;
+    category?: string;
   }
 
   interface ChatMessageProps {
@@ -80,6 +81,15 @@
       .filter(Boolean)
       .join(' ')
   );
+
+  let bubbleWrapperClasses = $derived(
+    [
+      'chat-message__bubble-wrapper',
+      products && products.length > 0 && productsInBubble && 'chat-message__bubble-wrapper--with-products'
+    ]
+      .filter(Boolean)
+      .join(' ')
+  );
 </script>
 
 <div class={messageClasses} role="group" onmouseenter={handleMouseEnter} onmouseleave={handleMouseLeave}>
@@ -93,7 +103,7 @@
     </div>
   {/if}
   
-  <div class="chat-message__bubble-wrapper">
+  <div class={bubbleWrapperClasses}>
     <ChatBubble {variant} {sender} {timestamp} userBubbleBackgroundColor={userBubbleBackgroundColor ?? effectiveThemeColor}>
       {#if children}
         {@render children()}
@@ -173,18 +183,58 @@
 
   .chat-message__bubble-wrapper:has(:global(.chat-bubble--user)) {
     margin-left: auto;
+    max-width: 90%;
   }
 
   .chat-message__bubble-wrapper:has(:global(.chat-bubble--assistant)) {
     margin-right: auto;
   }
 
+  .chat-message__bubble-wrapper--with-products {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .chat-message__bubble-wrapper--with-products:has(:global(.chat-bubble--user)),
+  .chat-message__bubble-wrapper--with-products:has(:global(.chat-bubble--assistant)) {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .chat-message__bubble-wrapper--with-products :global(.chat-bubble) {
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .chat-message__bubble-wrapper--with-products :global(.chat-bubble--user),
+  .chat-message__bubble-wrapper--with-products :global(.chat-bubble--assistant) {
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
   .chat-message__products {
     margin-top: 12px;
+    width: calc(100% + 36px);
+    max-width: calc(100% + 36px);
+    margin-left: -18px;
+    margin-right: -18px;
+    padding-left: 18px;
+    padding-right: 18px;
+    box-sizing: border-box;
   }
 
   .chat-message__products-outside {
     margin-bottom: 12px;
+    width: 100%;
+    max-width: 100%;
   }
 
   .chat-message__actions {
