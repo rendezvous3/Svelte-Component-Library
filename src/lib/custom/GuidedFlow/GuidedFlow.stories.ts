@@ -22,7 +22,7 @@ type Story = StoryObj<any>;
 
 const sampleSteps = [
   {
-    id: 'product-type',
+    id: 'category',
     title: 'What product type are you interested in?',
     subtitle: '(Select one)',
     type: 'single-select' as const,
@@ -43,19 +43,25 @@ const sampleSteps = [
       {
         id: 'vape-cart',
         label: 'Vape Cart',
-        value: 'vape-cart',
+        value: 'vaporizers',
         icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="16" y="10" width="8" height="20" rx="1" stroke="#3b82f6" stroke-width="2"/><path d="M18 12H22" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/></svg>'
       },
-      {
-        id: 'edible',
-        label: 'Edible',
-        value: 'edible',
-        icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="14" width="20" height="16" rx="2" stroke="#3b82f6" stroke-width="2"/><path d="M14 18H26" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/></svg>'
-      }
+        {
+          id: 'edible',
+          label: 'Edible',
+          value: 'edibles',
+          icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="14" width="20" height="16" rx="2" stroke="#3b82f6" stroke-width="2"/><path d="M14 18H26" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/></svg>'
+        },
+        {
+          id: 'concentrates',
+          label: 'Concentrates',
+          value: 'concentrates',
+          icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="8" stroke="#3b82f6" stroke-width="2"/><path d="M16 16L24 24M24 16L16 24" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/></svg>'
+        }
     ]
   },
   {
-    id: 'feelings',
+    id: 'effects',
     title: 'How would you like to feel?',
     subtitle: '(Up to 2)',
     type: 'multi-select' as const,
@@ -125,7 +131,7 @@ const sampleSteps = [
     ]
   },
   {
-    id: 'potency',
+    id: 'thc-percentage',
     title: 'How potent would you like it?',
     subtitle: '(Select one)',
     type: 'single-select' as const,
@@ -139,37 +145,37 @@ const sampleSteps = [
         icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="18" width="20" height="4" rx="2" fill="#3b82f6"/></svg>'
       },
       {
+        id: 'balanced',
+        label: 'Balanced',
+        value: 'balanced',
+        description: '13-18%',
+        icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="16" width="20" height="8" rx="2" fill="#3b82f6"/></svg>'
+      },
+      {
         id: 'moderate',
         label: 'Moderate',
         value: 'moderate',
-        description: '13-18%',
-        icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="16" width="20" height="8" rx="2" fill="#3b82f6"/></svg>'
+        description: '18-22%',
+        icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="14" width="20" height="12" rx="2" fill="#3b82f6"/></svg>'
       },
       {
         id: 'strong',
         label: 'Strong',
         value: 'strong',
-        description: '18-22%',
-        icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="14" width="20" height="12" rx="2" fill="#3b82f6"/></svg>'
+        description: '22-28%',
+        icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="12" width="20" height="16" rx="2" fill="#3b82f6"/></svg>'
       },
       {
         id: 'very-strong',
         label: 'Very Strong',
         value: 'very-strong',
-        description: '22-28%',
-        icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="12" width="20" height="16" rx="2" fill="#3b82f6"/></svg>'
-      },
-      {
-        id: 'extreme',
-        label: 'Extreme',
-        value: 'extreme',
         description: '>28%',
         icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="10" width="20" height="20" rx="2" fill="#3b82f6"/></svg>'
       }
     ]
   },
   {
-    id: 'price-range',
+    id: 'price',
     title: 'What price are you looking for each product?',
     subtitle: '(Select one)',
     type: 'single-select' as const,
@@ -178,31 +184,31 @@ const sampleSteps = [
       {
         id: 'no-preference',
         label: 'No Preference',
-        value: 'no-preference',
+        value: null,
         icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="8" stroke="#3b82f6" stroke-width="2"/><path d="M16 20H24" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/></svg>'
       },
       {
         id: 'low',
         label: '$0-25',
-        value: 'low',
+        value: { price_min: 0, price_max: 25 },
         icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 16L20 10L28 16V28C28 29.1 27.1 30 26 30H14C12.9 30 12 29.1 12 28V16Z" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 22L20 18L24 22" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
       },
       {
         id: 'medium',
         label: '$25-50',
-        value: 'medium',
+        value: { price_min: 25, price_max: 50 },
         icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 16L20 10L28 16V28C28 29.1 27.1 30 26 30H14C12.9 30 12 29.1 12 28V16Z" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 22L20 18L24 22M20 18V26" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
       },
       {
         id: 'high',
         label: '$50-75',
-        value: 'high',
+        value: { price_min: 50, price_max: 75 },
         icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 16L20 10L28 16V28C28 29.1 27.1 30 26 30H14C12.9 30 12 29.1 12 28V16Z" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 22L20 18L24 22M20 18V26M16 26H24" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
       },
       {
         id: 'premium',
         label: '$75+',
-        value: 'premium',
+        value: { price_min: 75, price_max: null },
         icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 16L20 10L28 16V28C28 29.1 27.1 30 26 30H14C12.9 30 12 29.1 12 28V16Z" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 22L20 18L24 22M20 18V26M16 26H24M18 24H22" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
       }
     ]
@@ -269,6 +275,109 @@ export const WithAllSteps: Story = {
       steps: sampleSteps,
       onComplete: (selections: Record<string, any>) => {
         console.log('All steps completed:', selections);
+      },
+      onClose: () => {
+        console.log('Flow closed');
+      }
+    }
+  },
+  render: (args: any) => ({
+    Component: GuidedFlow as any,
+    props: args,
+  })
+};
+
+const edibleFlowSteps = [
+  sampleSteps[0], // category
+  {
+    id: 'subcategory',
+    title: 'Which kinds of edibles would you like?',
+    subtitle: '(Select up to 2)',
+    type: 'multi-select' as const,
+    maxSelections: 2,
+    required: true,
+    options: [
+      {
+        id: 'chews',
+        label: 'Chews',
+        value: 'Chews',
+        icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="12" y="16" width="16" height="8" rx="2" stroke="#3b82f6" stroke-width="2"/><path d="M16 20H24" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/></svg>'
+      },
+      {
+        id: 'chocolates',
+        label: 'Chocolates',
+        value: 'Chocolates',
+        icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="14" width="20" height="12" rx="2" stroke="#3b82f6" stroke-width="2"/><path d="M14 18H26M14 22H26" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/></svg>'
+      },
+      {
+        id: 'cooking-baking',
+        label: 'Cooking/Baking',
+        value: 'CookingBaking',
+        icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="12" y="12" width="16" height="16" rx="2" stroke="#3b82f6" stroke-width="2"/><path d="M16 16H24M16 20H24M16 24H20" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/></svg>'
+      },
+      {
+        id: 'drinks',
+        label: 'Drinks',
+        value: 'Drinks',
+        icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 10C16 10 18 8 20 8C22 8 24 10 24 10V28C24 30 22 32 20 32C18 32 16 30 16 28V10Z" stroke="#3b82f6" stroke-width="2"/><path d="M18 14H22M18 18H22" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/></svg>'
+      },
+      {
+        id: 'gummies',
+        label: 'Gummies',
+        value: 'Gummies',
+        icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="4" fill="#3b82f6" opacity="0.3"/><circle cx="24" cy="16" r="4" fill="#3b82f6" opacity="0.3"/><circle cx="16" cy="24" r="4" fill="#3b82f6" opacity="0.3"/><circle cx="24" cy="24" r="4" fill="#3b82f6" opacity="0.3"/><circle cx="16" cy="16" r="4" stroke="#3b82f6" stroke-width="2"/><circle cx="24" cy="16" r="4" stroke="#3b82f6" stroke-width="2"/><circle cx="16" cy="24" r="4" stroke="#3b82f6" stroke-width="2"/><circle cx="24" cy="24" r="4" stroke="#3b82f6" stroke-width="2"/></svg>'
+      },
+      {
+        id: 'live-resin-gummies',
+        label: 'Live Resin Gummies',
+        value: 'Live Resin Gummies',
+        icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="4" fill="#3b82f6" opacity="0.3"/><circle cx="24" cy="16" r="4" fill="#3b82f6" opacity="0.3"/><circle cx="16" cy="24" r="4" fill="#3b82f6" opacity="0.3"/><circle cx="24" cy="24" r="4" fill="#3b82f6" opacity="0.3"/><circle cx="16" cy="16" r="4" stroke="#3b82f6" stroke-width="2"/><circle cx="24" cy="16" r="4" stroke="#3b82f6" stroke-width="2"/><circle cx="16" cy="24" r="4" stroke="#3b82f6" stroke-width="2"/><circle cx="24" cy="24" r="4" stroke="#3b82f6" stroke-width="2"/><path d="M20 12V28" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/></svg>'
+      },
+      {
+        id: 'live-rosin-gummies',
+        label: 'Live Rosin Gummies',
+        value: 'Live Rosin Gummies',
+        icon: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="4" fill="#3b82f6" opacity="0.3"/><circle cx="24" cy="16" r="4" fill="#3b82f6" opacity="0.3"/><circle cx="16" cy="24" r="4" fill="#3b82f6" opacity="0.3"/><circle cx="24" cy="24" r="4" fill="#3b82f6" opacity="0.3"/><circle cx="16" cy="16" r="4" stroke="#3b82f6" stroke-width="2"/><circle cx="24" cy="16" r="4" stroke="#3b82f6" stroke-width="2"/><circle cx="16" cy="24" r="4" stroke="#3b82f6" stroke-width="2"/><circle cx="24" cy="24" r="4" stroke="#3b82f6" stroke-width="2"/><path d="M12 20H28" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/></svg>'
+      }
+    ]
+  },
+  sampleSteps[1], // effects
+  {
+    id: 'dosage-per-piece',
+    title: 'Dosage per piece',
+    subtitle: '',
+    type: 'slider' as const,
+    required: true,
+    options: [
+      {
+        id: 'low',
+        label: 'Low',
+        value: 'low',
+        description: '<5mg'
+      },
+      {
+        id: 'medium',
+        label: 'Medium',
+        value: 'medium',
+        description: '5-9mg'
+      },
+      {
+        id: 'high',
+        label: 'High',
+        value: 'high',
+        description: '10mg'
+      }
+    ]
+  },
+  sampleSteps[3] // price
+];
+
+export const EdibleFlow: Story = {
+  args: {
+    config: {
+      steps: edibleFlowSteps,
+      onComplete: (selections: Record<string, any>) => {
+        console.log('Edible flow completed:', selections);
       },
       onClose: () => {
         console.log('Flow closed');

@@ -21,8 +21,10 @@
 
   let currentStep = $derived(config.steps[state.currentStepIndex]);
   let selectedValues = $derived.by(() => {
-    const values = state.selections[currentStep?.id];
-    if (!values) return [];
+    if (!currentStep) return [];
+    // Check if the key exists in selections (null is a valid value)
+    if (!(currentStep.id in state.selections)) return [];
+    const values = state.selections[currentStep.id];
     // Normalize to array: single-select stores single value, multi-select stores array
     return Array.isArray(values) ? values : [values];
   });
@@ -31,15 +33,22 @@
     if (!currentStep) return false;
     if (currentStep.required === false) return true;
     
-    const values = state.selections[currentStep.id];
-    if (!values) {
+    // Check if the key exists in selections (not if the value is truthy, since null is a valid value)
+    if (!(currentStep.id in state.selections)) {
       return false;
     }
+    
+    const values = state.selections[currentStep.id];
     
     // Normalize to array for checking
     const normalizedValues = Array.isArray(values) ? values : [values];
     if (normalizedValues.length === 0) {
       return false;
+    }
+    
+    // Check if we have a valid selection (null is a valid selection)
+    if (normalizedValues.length === 1 && normalizedValues[0] === null) {
+      return true; // null is a valid selection (e.g., "No Preference")
     }
     
     if (currentStep.type === 'multi-select' && currentStep.maxSelections) {
@@ -50,14 +59,17 @@
   }
 
   function handleSelect(value: any) {
-    // For single-select, store as single value; for multi-select, store as array
-    if (currentStep.type === 'single-select') {
+    // For single-select and slider, store as single value; for multi-select, store as array
+    if (currentStep.type === 'single-select' || currentStep.type === 'slider') {
       state.selections[currentStep.id] = value;
     } else {
       // Multi-select: value is already an array from FlowStep
       state.selections[currentStep.id] = value;
     }
     state.completedSteps.add(state.currentStepIndex);
+    
+    // Notify parent of selection changes
+    config.onSelectionChange?.(state.selections);
   }
 
   function handleNext() {
@@ -73,7 +85,7 @@
       console.log('=== GuidedFlow Selections ===');
       console.log('Raw Selections:', state.selections);
       console.log('Metadata:', transformed.metadata);
-      console.log('Query:', transformed.query);
+      console.log('Query:', transformed.guidedFlowQuery);
       console.log('Filters:', transformed.filters);
       console.log('============================');
       
