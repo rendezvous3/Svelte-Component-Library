@@ -182,7 +182,7 @@
     color: var(--chat-bubble-user-text, #111827);
     margin-left: auto;
     border-bottom-right-radius: 3px;
-    box-shadow: 0 4px 16px var(--chat-bubble-user-shadow, rgba(36, 198, 213, 0.3)), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+    /* box-shadow: 0 4px 16px var(--chat-bubble-user-shadow, rgba(36, 198, 213, 0.3)), 0 0 0 1px rgba(255, 255, 255, 0.1) inset; */
     max-width: 90%;
   }
 
@@ -408,7 +408,7 @@
 
   :global(.dark) .chat-bubble--system,
   :global([data-theme="dark"]) .chat-bubble--system {
-    background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+    background: linear-gradient(135deg, #1ba4298f 0%, #1ba4298f 100%);
     color: #fef3c7;
     box-shadow: 0 4px 16px rgba(146, 64, 14, 0.3), 0 0 0 1px rgba(254, 243, 199, 0.2) inset;
   }
