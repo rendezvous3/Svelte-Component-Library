@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getContext, tick } from 'svelte';
+  import { getContext } from 'svelte';
 
   interface ChatInputProps {
     placeholder?: string;
@@ -64,9 +64,13 @@
   let speedDropdownOpen = $state(false);
   let fileInputRef: HTMLInputElement | null = $state(null);
   let textareaRef: HTMLTextAreaElement | null = $state(null);
+  let inputRef: HTMLInputElement | null = $state(null);
   let textareaTwoLineRef: HTMLTextAreaElement | null = $state(null);
   let isExpanded = $state(false);
-  
+  // When true, the next textareaRef rebind triggers focus restore (layout swap while typing).
+  // Set to false after send on mobile so the blur sticks.
+  let pendingFocusRestore = $state(false);
+
   let selectedAgent = $state('composer');
   let selectedModel = $state('gpt-4');
   let selectedTemperature = $state('balanced');
@@ -93,17 +97,14 @@
 
   function shouldExpand(charCount: number): boolean {
     const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
-    // let threshold = 80; // Default for large screens
+
     let threshold = 20;
-    
     if (screenWidth < 640) {
-      // threshold = 40; // Small screens
-      threshold = 10; // Small screens
+      threshold = 10;
     } else if (screenWidth < 1024) {
-      // threshold = 60; // Medium screens
-      threshold = 15; // Medium screens
+      threshold = 15;
     }
-    
+
     // Add hysteresis: expand at threshold, collapse slightly below to prevent flickering
     if (isExpanded) {
       return charCount > threshold - 5; // Stay expanded until 5 chars below threshold
@@ -129,10 +130,12 @@
     // Update expansion state based on character count
     const shouldBeExpanded = shouldExpand(inputValue.length);
     if (isExpanded !== shouldBeExpanded) {
+      // Layout swap coming — request focus restore after the new textarea binds
+      pendingFocusRestore = true;
       isExpanded = shouldBeExpanded;
     }
     // Auto-resize the textarea for visual height adjustment only
-    autoResizeTextarea(target);
+    // autoResizeTextarea(target);
   }
 
   function handleSend() {
@@ -145,9 +148,18 @@
       });
       inputValue = '';
       oninput?.('');
-      // Reset textarea height and expansion state after sending
-      // Expansion state will be reset automatically since inputValue.length is now 0
+      // Reset textarea height and expansion state after sending.
+      const isMobile = typeof window !== 'undefined' && window.innerWidth <= 640;
+      // On desktop: restore focus after layout collapse. On mobile: skip so blur sticks.
+      pendingFocusRestore = !isMobile;
       isExpanded = false;
+      // On mobile, blur the input/textarea to dismiss the keyboard so the user
+      // sees the full response. Desktop keeps focus for continuous typing.
+      if (isMobile) {
+        inputRef?.blur();
+        textareaRef?.blur();
+        textareaTwoLineRef?.blur();
+      }
       if (textareaRef) {
         textareaRef.style.height = 'auto';
       }
@@ -178,24 +190,17 @@
   // Remove auto-resize effects - they cause infinite loops
   // Resizing only happens in handleInput when user types
 
-  // Restore focus when layout changes (both expand and collapse)
-  let previousExpandedState = $state(false);
+  // Restore focus after layout swap (expand ↔ collapse).
+  // Watches both inputRef and textareaRef: when Svelte rebinds after a {#if}/{:else}
+  // DOM swap (input → textarea or vice versa), this effect fires and focuses if pending.
   $effect(() => {
-    // Track isExpanded changes
-    const expanded = isExpanded;
-    // Restore focus when layout state changes (either direction)
-    if (expanded !== previousExpandedState && textareaRef) {
-      // Use tick to ensure DOM has updated after layout change
-      tick().then(() => {
-        if (textareaRef) {
-          textareaRef.focus();
-          // Restore cursor position to end
-          const len = inputValue.length;
-          textareaRef.setSelectionRange(len, len);
-        }
-      });
+    const ref = isExpanded ? textareaRef : inputRef;
+    if (ref && pendingFocusRestore) {
+      pendingFocusRestore = false;
+      ref.focus();
+      const len = inputValue.length;
+      ref.setSelectionRange(len, len);
     }
-    previousExpandedState = expanded;
   });
 
   // Close dropdowns when clicking outside
@@ -221,6 +226,10 @@
       return () => window.removeEventListener('click', handleClickOutside);
     }
   });
+
+  function handleFocus() {
+    isFocused = true;
+  }
 
   function handleKeyDown(e: KeyboardEvent) {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -302,7 +311,7 @@
             value={inputValue}
             oninput={handleInput}
             onkeydown={handleKeyDown}
-            onfocus={() => isFocused = true}
+            onfocus={handleFocus}
             onblur={() => isFocused = false}
             {disabled}
             maxlength={maxLength}
@@ -576,21 +585,21 @@
           {/if}
 
           <div class="chat-input__textarea-wrapper">
-            <textarea
-              bind:this={textareaRef}
-              class="chat-input__field"
+            <input
+              bind:this={inputRef}
+              type="text"
+              class="chat-input__field chat-input__field--input"
               {placeholder}
               value={inputValue}
               oninput={handleInput}
               onkeydown={handleKeyDown}
-              onfocus={() => isFocused = true}
+              onfocus={handleFocus}
               onblur={() => isFocused = false}
               {disabled}
               maxlength={maxLength}
-              rows="1"
               aria-label="Message input"
-            ></textarea>
-            
+            />
+
             {#if maxLength && characterCount > maxLength * 0.8}
               <span class="chat-input__counter">
                 {characterCount}{maxLength ? `/${maxLength}` : ''}
@@ -665,7 +674,7 @@
               value={inputValue}
               oninput={handleInput}
               onkeydown={handleKeyDown}
-              onfocus={() => isFocused = true}
+              onfocus={handleFocus}
               onblur={() => isFocused = false}
               {disabled}
               maxlength={maxLength}
@@ -808,23 +817,26 @@
   .chat-input {
     position: relative;
     width: 100%;
+    z-index: 1;
+    isolation: isolate;
   }
 
   .chat-input__container {
     display: flex;
     flex-direction: row;
-    align-items: flex-end;
+    align-items: center;
     gap: 8px;
     background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 24px;
     padding: 8px 12px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     overflow: visible;
     min-width: 0;
+    /* Mobile optimization - ensure immediate interactivity */
+    pointer-events: auto;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* Expanded container - column layout */
@@ -1228,6 +1240,14 @@
     overflow: visible;
     min-width: 0;
     max-width: 100%;
+    /* Ensure wrapper doesn't block input interaction */
+    pointer-events: none;
+  }
+
+  /* But the input/textarea itself must receive events */
+  .chat-input__textarea-wrapper > input,
+  .chat-input__textarea-wrapper > textarea {
+    pointer-events: auto;
   }
 
   /* Expanded textarea wrapper (Layout 2) */
@@ -1262,8 +1282,26 @@
     padding: 8px 12px 8px 0;
     overflow-y: auto;
     box-sizing: border-box;
-    vertical-align: middle;
     width: 100%;
+  }
+
+  /* Input field variant (single-line mode) */
+  .chat-input__field--input {
+    min-height: auto;
+    max-height: none;
+    overflow: visible;
+    height: auto;
+    padding: 10px 12px 10px 0;
+    line-height: 1.5;
+    /* Critical mobile fixes */
+    pointer-events: auto !important;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: text;
+    user-select: text;
+    /* Ensure no rendering delays */
+    will-change: auto;
+    transform: none;
   }
 
   /* Expanded textarea field (Layout 2) */
@@ -1589,7 +1627,14 @@
   /* Responsive */
   @media (max-width: 640px) {
     .chat-input__container {
-      padding: 6px 8px;
+      padding: 8px 12px;
+    }
+
+    /* 16px minimum prevents iOS Safari auto-zoom on input focus */
+    .chat-input__field,
+    .chat-input__field--input,
+    .chat-input__field--two-line {
+      font-size: 16px;
     }
 
     .chat-input__button {

@@ -2,6 +2,7 @@
   import type { FlowStep as FlowStepType } from './types.js';
   import FlowOptionCard from './FlowOptionCard.svelte';
   import FlowSlider from './FlowSlider.svelte';
+  import PriceSelector from './PriceSelector.svelte';
 
   interface FlowStepProps {
     step: FlowStepType;
@@ -14,6 +15,26 @@
     selectedValues = [],
     onSelect
   }: FlowStepProps = $props();
+
+  // Derive grid column count and min-width
+  let gridColumns = $derived(step.gridColumns);
+  let gridMinWidth = $derived(
+    gridColumns ? `${Math.floor(360 / gridColumns)}px` : '100px'
+  );
+
+  // Convert customStyles to CSS custom properties
+  let customStyleVars = $derived(() => {
+    if (!step.customStyles) return {};
+    const vars: Record<string, string> = {};
+    Object.entries(step.customStyles).forEach(([key, value]) => {
+      if (value !== undefined) {
+        // Convert camelCase to kebab-case (e.g., fontSize -> font-size)
+        const cssKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+        vars[`--card-${cssKey}`] = value;
+      }
+    });
+    return vars;
+  });
 
   // Deep equality check for objects
   function deepEqual(a: any, b: any): boolean {
@@ -118,6 +139,10 @@
   function handleSliderChange(value: string) {
     onSelect(value);
   }
+
+  function handlePriceSelectorChange(value: { mode: 'no-max' | 'set-max'; max?: number }) {
+    onSelect(value);
+  }
 </script>
 
 <div class="flow-step">
@@ -134,14 +159,27 @@
       onValueChange={handleSliderChange}
       options={step.options}
     />
+  {:else if step.type === 'price-selector'}
+    <PriceSelector
+      value={selectedValues.length > 0 ? selectedValues[0] : null}
+      onValueChange={handlePriceSelectorChange}
+      category={step.category || null}
+    />
   {:else}
-    <div class="flow-step__options" class:flow-step__options--grid={useGridLayout}>
+    <div
+      class="flow-step__options"
+      class:flow-step__options--grid={useGridLayout}
+      style:--grid-columns={gridColumns}
+      style:--grid-min-width={gridMinWidth}
+      style={Object.entries(customStyleVars()).map(([k, v]) => `${k}: ${v}`).join('; ')}
+    >
       {#each step.options as option}
         <FlowOptionCard
           option={option}
           selected={isOptionSelected(option.value)}
           disabled={isOptionDisabled(option.value)}
           compact={useGridLayout}
+          cardSize={step.cardSize}
           onclick={() => handleOptionClick(option.value)}
         />
       {/each}
@@ -154,20 +192,38 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 24px 20px;
-    overflow-y: auto;
+    padding: 12px 6px 6px 6px;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .flow-step::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .flow-step::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .flow-step::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+
+  .flow-step::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
   }
 
   .flow-step__header {
-    margin-bottom: 24px;
+    margin-bottom: 16px;
     text-align: center;
   }
 
   .flow-step__title {
-    font-size: 20px;
-    font-weight: 500;
+    font-size: 16px;
+    font-weight: 400;
     color: #111827;
-    margin: 0 0 8px 0;
+    margin: 8px 0 8px 0;
     line-height: 1.3;
   }
 
@@ -181,13 +237,16 @@
   .flow-step__options {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 6px;
   }
 
   .flow-step__options--grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(
+      var(--grid-columns, auto-fit),
+      minmax(var(--grid-min-width, 100px), 1fr)
+    );
+    gap: 6px;
   }
 
   /* Dark mode */
@@ -199,6 +258,21 @@
   :global(.dark) .flow-step__subtitle,
   :global([data-theme="dark"]) .flow-step__subtitle {
     color: #858585;
+  }
+
+  :global(.dark) .flow-step::-webkit-scrollbar-track,
+  :global([data-theme="dark"]) .flow-step::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  :global(.dark) .flow-step::-webkit-scrollbar-thumb,
+  :global([data-theme="dark"]) .flow-step::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  :global(.dark) .flow-step::-webkit-scrollbar-thumb:hover,
+  :global([data-theme="dark"]) .flow-step::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
   }
 </style>
 

@@ -46,6 +46,7 @@
     guidedFlowConfig?: import('../GuidedFlow/types.js').GuidedFlowConfig;
     messagesCount?: number;
     noAssistantBubble?: boolean;
+    iconSrc?: string;
   }
 
   let {
@@ -79,7 +80,8 @@
     modeTogglePosition = 'upper-left',
     guidedFlowConfig,
     messagesCount = 0,
-    noAssistantBubble = false
+    noAssistantBubble = false,
+    iconSrc
   }: ChatWidgetProps = $props();
 
   // Provide themeBackgroundColor to child components via context
@@ -176,6 +178,7 @@
         onMenuItemClick={onMenuItemClick}
         headerBackgroundColor={headerBackgroundColor ?? themeBackgroundColor}
         height="lg"
+        {iconSrc}
       />
       
       <ChatWindow
@@ -331,7 +334,7 @@
     /* width: 380px; */
     width: 426px;
     max-width: calc(100vw - 40px);
-    height: 698px;
+    height: 702px;
     /* height: 600px; */
     max-height: calc(100vh - 120px);
     background: #ffffff;
@@ -441,39 +444,71 @@
   }
 
   @media (max-width: 640px) {
-    .chat-widget__window {
-      width: calc(100vw - 20px);
-      height: calc(100vh - 100px);
-      max-height: calc(100vh - 100px);
-    }
-
+    /* Button positioning when widget is NOT open */
     .chat-widget--bottom-right,
     .chat-widget--bottom-left {
       bottom: 10px;
       right: 10px;
-      left: 10px;
+      left: auto;
     }
 
-    .chat-widget--bottom-right .chat-widget__window,
-    .chat-widget--bottom-left .chat-widget__window {
-      bottom: 70px;
+    .chat-widget--bottom-left {
+      left: 10px;
+      right: auto;
+    }
+
+    /* When open: parent covers full viewport as backdrop (must come AFTER position rules to win specificity) */
+    .chat-widget--open {
+      top: 0;
       left: 0;
       right: 0;
-    }
-
-    .chat-widget--expanded .chat-widget__window {
-      width: 100vw;
-      height: 100vh;
-      border-radius: 0;
       bottom: 0;
-      right: 0;
-      transform: none;
+      width: 100%;
+      height: 100%;
+      background: #000;
     }
 
-    .chat-widget--bottom-left.chat-widget--expanded .chat-widget__window,
-    .chat-widget--top-right.chat-widget--expanded .chat-widget__window,
-    .chat-widget--top-left.chat-widget--expanded .chat-widget__window {
+    .chat-widget--dark.chat-widget--open {
+      background: #1e1e1e;
+    }
+
+    /* Child fills parent (absolute, not fixed — avoids nested fixed positioning issues on iOS) */
+    .chat-widget--open .chat-widget__window {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: auto;
+      height: auto;
+      max-width: none;
+      max-height: none;
+      border-radius: 0;
+      border: none;
+      animation: none;
+      overscroll-behavior: none;
+    }
+
+    /* Hide floating bubble when widget is open on mobile */
+    .chat-widget--open .chat-widget__button {
+      display: none;
+    }
+
+    /* Expanded state on mobile: same fullscreen treatment */
+    .chat-widget--expanded .chat-widget__window {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: auto;
+      height: auto;
+      max-width: none;
+      max-height: none;
+      border-radius: 0;
+      border: none;
       transform: none;
+      overscroll-behavior: none;
     }
   }
 </style>

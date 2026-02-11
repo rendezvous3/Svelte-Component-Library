@@ -85,22 +85,12 @@
   }
 
   function scrollToBottom(instant = false) {
-    if (messagesContainerRef) {
-      // Use direct scrollTop manipulation for more reliable scrolling
-      // This ensures we scroll to the absolute bottom
-      if (instant) {
-        messagesContainerRef.scrollTop = messagesContainerRef.scrollHeight;
-      } else {
-        // Use requestAnimationFrame to ensure DOM is updated before scrolling
-        requestAnimationFrame(() => {
-          if (messagesContainerRef) {
-            messagesContainerRef.scrollTop = messagesContainerRef.scrollHeight;
-          }
-        });
-      }
-    } else {
-      // Fallback to scrollIntoView if container ref is not available
-      messagesEndRef?.scrollIntoView({ behavior: instant ? 'auto' : 'smooth' });
+    // Prefer scrollIntoView on the sentinel element — more reliable than scrollTop
+    // across browsers (especially Safari where scrollTop + smooth CSS can conflict)
+    if (messagesEndRef) {
+      messagesEndRef.scrollIntoView({ behavior: instant ? 'auto' : 'smooth', block: 'end' });
+    } else if (messagesContainerRef) {
+      messagesContainerRef.scrollTop = messagesContainerRef.scrollHeight;
     }
   }
 
@@ -122,16 +112,11 @@
   });
 
   // Auto-scroll to bottom when new messages arrive
-  // Watch messagesCount to detect when messages are added (including recommendations)
+  // $effect runs after DOM update; rAF ensures layout is complete before scrolling
   $effect(() => {
-    if (messagesCount > 0 && messagesContainerRef && messagesEndRef && mode === 'chat') {
-      // Use requestAnimationFrame twice to ensure DOM is fully updated
-      // First frame: DOM updates
-      // Second frame: Scroll happens after layout
+    if (messagesCount > 0 && messagesEndRef && mode === 'chat') {
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          scrollToBottom(true); // Use instant scroll for auto-scroll
-        });
+        scrollToBottom(true);
       });
     }
   });
@@ -444,8 +429,8 @@
     display: flex;
     flex-direction: column;
     gap: 0;
-    scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     background: #f9fafa;
   }
 
@@ -467,7 +452,8 @@
   }
 
   .chat-window__messages-end {
-    height: 1px;
+    height: 50px;
+    flex-shrink: 0;
   }
 
   .chat-window__guided-flow {
@@ -651,9 +637,19 @@
     background: #1e1e1e;
   }
 
+  :global(.dark) .chat-window__messages::-webkit-scrollbar-track,
+  :global([data-theme="dark"]) .chat-window__messages::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
   :global(.dark) .chat-window__messages::-webkit-scrollbar-thumb,
   :global([data-theme="dark"]) .chat-window__messages::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  :global(.dark) .chat-window__messages::-webkit-scrollbar-thumb:hover,
+  :global([data-theme="dark"]) .chat-window__messages::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
   }
 
   :global(.dark) .chat-window__input-wrapper,
@@ -701,7 +697,11 @@
     }
 
     .chat-window__messages {
-      padding: 16px;
+      padding: 8px;
+    }
+
+    .chat-window__expand-button {
+      display: none;
     }
 
     .chat-window__scroll-button {
