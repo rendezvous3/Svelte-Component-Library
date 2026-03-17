@@ -2,22 +2,27 @@
   export let bounced: number;
   export let failed: number;
   export let complained: number;
-  export let sent: number;       // bounce/complaint rate denominator
-  export let attempted: number;  // failed/internal rate denominator
+  export let unsubscribed: number = 0;
+  export let sent: number;
+  export let attempted: number;
   export let internal: number = 0;
   export let errorsHref: string | null = null;
   export let title: string = "EMAIL HEALTH";
   export let caption: string = "";
 
   $: showInternal = internal > 0;
+  $: showUnsubscribed = unsubscribed > 0;
+  $: gridColsClass = showInternal && showUnsubscribed ? "grid-cols-5" : showInternal || showUnsubscribed ? "grid-cols-4" : "grid-cols-3";
 
   $: bounceRate = sent > 0 ? (bounced / sent) * 100 : 0;
   $: complaintRate = sent > 0 ? (complained / sent) * 100 : 0;
+  $: unsubscribeRate = sent > 0 ? (unsubscribed / sent) * 100 : 0;
   $: failedRate = attempted > 0 ? (failed / attempted) * 100 : 0;
   $: internalRate = attempted > 0 ? (internal / attempted) * 100 : 0;
 
   $: bounceRateStr = sent > 0 ? bounceRate.toFixed(2) + "%" : "—";
   $: complaintRateStr = sent > 0 ? complaintRate.toFixed(2) + "%" : "—";
+  $: unsubscribeRateStr = sent > 0 ? unsubscribeRate.toFixed(2) + "%" : "—";
   $: failedRateStr = attempted > 0 ? failedRate.toFixed(2) + "%" : "—";
   $: internalRateStr = attempted > 0 ? internalRate.toFixed(2) + "%" : "—";
 
@@ -36,10 +41,14 @@
   function failedColor(rate: number): string {
     return rate > 0 ? "text-yellow-400" : "text-[#737373]";
   }
+
+  function unsubscribeColor(rate: number): string {
+    if (rate >= 1) return "text-yellow-400";
+    return rate > 0 ? "text-[#d4d4d4]" : "text-[#737373]";
+  }
 </script>
 
 <div class="rounded-xl border border-white/[0.07] bg-[#111111]">
-  <!-- Header -->
   <div class="flex items-center justify-between border-b border-white/[0.07] px-5 py-3">
     <div class="text-xs font-medium uppercase tracking-widest text-[#525252]">{title}</div>
     {#if caption}
@@ -47,9 +56,7 @@
     {/if}
   </div>
 
-  <!-- Row 1: counts -->
-  <div class="grid divide-x divide-white/[0.05] {showInternal ? 'grid-cols-4' : 'grid-cols-3'}">
-    <!-- Bounced -->
+  <div class="grid divide-x divide-white/[0.05] {gridColsClass}">
     <div class="px-5 py-4">
       <div class="group/tip relative flex items-center gap-1">
         <div class="text-xs uppercase tracking-widest text-[#525252]">Bounced</div>
@@ -57,13 +64,12 @@
           <path fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM7 7.5a1 1 0 0 1 2 0v3.5a1 1 0 0 1-2 0V7.5z" clip-rule="evenodd"/>
         </svg>
         <div class="pointer-events-none absolute bottom-full left-0 z-30 mb-2 w-48 rounded-lg border border-white/[0.07] bg-[#1a1a1a] px-2.5 py-2 text-[11px] leading-relaxed text-[#737373] opacity-0 transition-opacity group-hover/tip:opacity-100">
-          Hard bounce — the receiving mail server permanently rejected this address
+          Hard bounce: the receiving mail server permanently rejected the address
         </div>
       </div>
       <div class="mt-1.5 text-2xl font-semibold tabular-nums {bounced > 0 ? 'text-rose-400' : 'text-white'}">{bounced.toLocaleString()}</div>
     </div>
 
-    <!-- Failed -->
     <div class="px-5 py-4">
       <div class="group/tip relative flex items-center gap-1">
         <div class="text-xs uppercase tracking-widest text-[#525252]">Failed</div>
@@ -71,27 +77,40 @@
           <path fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM7 7.5a1 1 0 0 1 2 0v3.5a1 1 0 0 1-2 0V7.5z" clip-rule="evenodd"/>
         </svg>
         <div class="pointer-events-none absolute bottom-full left-0 z-30 mb-2 w-48 rounded-lg border border-white/[0.07] bg-[#1a1a1a] px-2.5 py-2 text-[11px] leading-relaxed text-[#737373] opacity-0 transition-opacity group-hover/tip:opacity-100">
-          Resend API rejected the batch before attempting delivery — auth errors, rate limits, validation failures
+          The provider rejected or dropped messages before delivery, usually because of auth, rate-limit, validation, or upstream API errors
         </div>
       </div>
       <div class="mt-1.5 text-2xl font-semibold tabular-nums {failed > 0 ? 'text-yellow-400' : 'text-white'}">{failed.toLocaleString()}</div>
     </div>
 
-    <!-- Complained -->
     <div class="px-5 py-4">
       <div class="group/tip relative flex items-center gap-1">
         <div class="text-xs uppercase tracking-widest text-[#525252]">Complained</div>
         <svg class="h-3 w-3 shrink-0 cursor-help text-[#3a3a3a] transition group-hover/tip:text-[#525252]" viewBox="0 0 16 16" fill="currentColor">
           <path fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM7 7.5a1 1 0 0 1 2 0v3.5a1 1 0 0 1-2 0V7.5z" clip-rule="evenodd"/>
         </svg>
-        <div class="pointer-events-none absolute {showInternal ? 'left-0' : 'right-0'} bottom-full z-30 mb-2 w-44 rounded-lg border border-white/[0.07] bg-[#1a1a1a] px-2.5 py-2 text-[11px] leading-relaxed text-[#737373] opacity-0 transition-opacity group-hover/tip:opacity-100">
-          Recipient marked the email as spam — tracked via Resend webhook
+        <div class="pointer-events-none absolute {showInternal || showUnsubscribed ? 'left-0' : 'right-0'} bottom-full z-30 mb-2 w-44 rounded-lg border border-white/[0.07] bg-[#1a1a1a] px-2.5 py-2 text-[11px] leading-relaxed text-[#737373] opacity-0 transition-opacity group-hover/tip:opacity-100">
+          Recipient marked the message as spam, tracked via provider feedback events
         </div>
       </div>
       <div class="mt-1.5 text-2xl font-semibold tabular-nums {complained > 0 ? 'text-rose-400' : 'text-white'}">{complained.toLocaleString()}</div>
     </div>
 
-    <!-- Internal (conditional) -->
+    {#if showUnsubscribed}
+      <div class="px-5 py-4">
+        <div class="group/tip relative flex items-center gap-1">
+          <div class="text-xs uppercase tracking-widest text-[#525252]">Unsubscribed</div>
+          <svg class="h-3 w-3 shrink-0 cursor-help text-[#3a3a3a] transition group-hover/tip:text-[#525252]" viewBox="0 0 16 16" fill="currentColor">
+            <path fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM7 7.5a1 1 0 0 1 2 0v3.5a1 1 0 0 1-2 0V7.5z" clip-rule="evenodd"/>
+          </svg>
+          <div class="pointer-events-none absolute bottom-full right-0 z-30 mb-2 w-48 rounded-lg border border-white/[0.07] bg-[#1a1a1a] px-2.5 py-2 text-[11px] leading-relaxed text-[#737373] opacity-0 transition-opacity group-hover/tip:opacity-100">
+            Recipients who opted out through the provider's unsubscribe workflow
+          </div>
+        </div>
+        <div class="mt-1.5 text-2xl font-semibold tabular-nums {unsubscribed > 0 ? 'text-yellow-400' : 'text-white'}">{unsubscribed.toLocaleString()}</div>
+      </div>
+    {/if}
+
     {#if showInternal}
       <div class="px-5 py-4">
         <div class="group/tip relative flex items-center gap-1">
@@ -100,7 +119,7 @@
             <path fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM7 7.5a1 1 0 0 1 2 0v3.5a1 1 0 0 1-2 0V7.5z" clip-rule="evenodd"/>
           </svg>
           <div class="pointer-events-none absolute bottom-full right-0 z-30 mb-2 w-48 rounded-lg border border-white/[0.07] bg-[#1a1a1a] px-2.5 py-2 text-[11px] leading-relaxed text-[#737373] opacity-0 transition-opacity group-hover/tip:opacity-100">
-            Filtered by our email validator before reaching Resend — address failed format check
+            Filtered by our own validator before reaching the provider because the address failed a format check
           </div>
         </div>
         <div class="mt-1.5 text-2xl font-semibold tabular-nums text-yellow-400">{internal.toLocaleString()}</div>
@@ -108,12 +127,9 @@
     {/if}
   </div>
 
-  <!-- Divider -->
-  <div class="border-t border-white/[0.05]" />
+  <div class="border-t border-white/[0.05]"></div>
 
-  <!-- Row 2: rates -->
-  <div class="grid divide-x divide-white/[0.05] {showInternal ? 'grid-cols-4' : 'grid-cols-3'}">
-    <!-- Bounce rate -->
+  <div class="grid divide-x divide-white/[0.05] {gridColsClass}">
     <div class="px-5 py-4">
       <div class="group/tip relative flex items-center gap-1">
         <div class="text-xs uppercase tracking-widest text-[#525252]">Bounce rate</div>
@@ -121,14 +137,13 @@
           <path fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM7 7.5a1 1 0 0 1 2 0v3.5a1 1 0 0 1-2 0V7.5z" clip-rule="evenodd"/>
         </svg>
         <div class="pointer-events-none absolute bottom-full left-0 z-30 mb-2 w-44 rounded-lg border border-white/[0.07] bg-[#1a1a1a] px-2.5 py-2 text-[11px] leading-relaxed text-[#737373] opacity-0 transition-opacity group-hover/tip:opacity-100">
-          Bounced ÷ Sent — industry standard. Keep below 2%
+          Bounced ÷ Sent. Keep this below 2%.
         </div>
       </div>
       <div class="mt-1.5 text-lg font-medium tabular-nums {bounceColor(bounceRate)}">{bounceRateStr}</div>
       <div class="mt-0.5 text-[11px] text-[#525252]">bounced / sent</div>
     </div>
 
-    <!-- Failed rate -->
     <div class="px-5 py-4">
       <div class="group/tip relative flex items-center gap-1">
         <div class="text-xs uppercase tracking-widest text-[#525252]">Failed rate</div>
@@ -143,29 +158,50 @@
       <div class="mt-0.5 text-[11px] text-[#525252]">failed / attempted</div>
     </div>
 
-    <!-- Complaint rate (+ View errors link when no internal col) -->
-    <div class="px-5 py-4 {!showInternal ? 'flex flex-col justify-between' : ''}">
+    <div class="px-5 py-4 {!showInternal && !showUnsubscribed ? 'flex flex-col justify-between' : ''}">
       <div>
         <div class="group/tip relative flex items-center gap-1">
           <div class="text-xs uppercase tracking-widest text-[#525252]">Complaint rate</div>
           <svg class="h-3 w-3 shrink-0 cursor-help text-[#3a3a3a] transition group-hover/tip:text-[#525252]" viewBox="0 0 16 16" fill="currentColor">
             <path fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM7 7.5a1 1 0 0 1 2 0v3.5a1 1 0 0 1-2 0V7.5z" clip-rule="evenodd"/>
           </svg>
-          <div class="pointer-events-none absolute {showInternal ? 'left-0' : 'right-0'} bottom-full z-30 mb-2 w-44 rounded-lg border border-white/[0.07] bg-[#1a1a1a] px-2.5 py-2 text-[11px] leading-relaxed text-[#737373] opacity-0 transition-opacity group-hover/tip:opacity-100">
-            Complained ÷ Sent — industry standard. Keep below 0.1%
+          <div class="pointer-events-none absolute {showInternal || showUnsubscribed ? 'left-0' : 'right-0'} bottom-full z-30 mb-2 w-44 rounded-lg border border-white/[0.07] bg-[#1a1a1a] px-2.5 py-2 text-[11px] leading-relaxed text-[#737373] opacity-0 transition-opacity group-hover/tip:opacity-100">
+            Complained ÷ Sent. Keep this below 0.1%.
           </div>
         </div>
         <div class="mt-1.5 text-lg font-medium tabular-nums {complaintColor(complaintRate)}">{complaintRateStr}</div>
         <div class="mt-0.5 text-[11px] text-[#525252]">complained / sent</div>
       </div>
-      {#if errorsHref && !showInternal}
+      {#if errorsHref && !showInternal && !showUnsubscribed}
         <a href={errorsHref} class="mt-3 self-end text-xs text-[#525252] transition hover:text-[#f5f5f5]">
           View errors →
         </a>
       {/if}
     </div>
 
-    <!-- Internal rate (conditional, also holds View errors link) -->
+    {#if showUnsubscribed}
+      <div class="px-5 py-4 {!showInternal ? 'flex flex-col justify-between' : ''}">
+        <div>
+          <div class="group/tip relative flex items-center gap-1">
+            <div class="text-xs uppercase tracking-widest text-[#525252]">Unsub rate</div>
+            <svg class="h-3 w-3 shrink-0 cursor-help text-[#3a3a3a] transition group-hover/tip:text-[#525252]" viewBox="0 0 16 16" fill="currentColor">
+              <path fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM7 7.5a1 1 0 0 1 2 0v3.5a1 1 0 0 1-2 0V7.5z" clip-rule="evenodd"/>
+            </svg>
+            <div class="pointer-events-none absolute bottom-full right-0 z-30 mb-2 w-44 rounded-lg border border-white/[0.07] bg-[#1a1a1a] px-2.5 py-2 text-[11px] leading-relaxed text-[#737373] opacity-0 transition-opacity group-hover/tip:opacity-100">
+              Unsubscribed ÷ Sent
+            </div>
+          </div>
+          <div class="mt-1.5 text-lg font-medium tabular-nums {unsubscribeColor(unsubscribeRate)}">{unsubscribeRateStr}</div>
+          <div class="mt-0.5 text-[11px] text-[#525252]">unsubscribed / sent</div>
+        </div>
+        {#if errorsHref && !showInternal}
+          <a href={errorsHref} class="mt-3 self-end text-xs text-[#525252] transition hover:text-[#f5f5f5]">
+            View errors →
+          </a>
+        {/if}
+      </div>
+    {/if}
+
     {#if showInternal}
       <div class="flex flex-col justify-between px-5 py-4">
         <div>
@@ -175,7 +211,7 @@
               <path fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM7 7.5a1 1 0 0 1 2 0v3.5a1 1 0 0 1-2 0V7.5z" clip-rule="evenodd"/>
             </svg>
             <div class="pointer-events-none absolute bottom-full right-0 z-30 mb-2 w-48 rounded-lg border border-white/[0.07] bg-[#1a1a1a] px-2.5 py-2 text-[11px] leading-relaxed text-[#737373] opacity-0 transition-opacity group-hover/tip:opacity-100">
-              Internally filtered ÷ Attempted — fixable by cleaning your contact list
+              Internally filtered ÷ Attempted
             </div>
           </div>
           <div class="mt-1.5 text-lg font-medium tabular-nums text-yellow-400">{internalRateStr}</div>

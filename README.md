@@ -9,6 +9,14 @@ This component library provides production-ready, reusable UI components that ca
 - **Custom CSS Components** (`src/lib/custom/`) - Hand-crafted components with custom CSS, no framework dependencies
 - **Tailwind Components** (`src/lib/tailwind/`) - Components built with Tailwind CSS utility classes
 
+## Critical External-Call Safety
+
+- Treat endpoints, third-party APIs, pagination, queues, billing operations, and LLM calls as zero-assumption territory. Do not guess cursor shapes, retry behavior, rate limits, costs, or stop conditions.
+- Never run an open-ended loop over external calls. Every loop must have a small explicit manual cutoff such as `MAX_API_CALLS`, `MAX_PAGES`, `MAX_RETRIES`, or `MAX_ITEMS`.
+- Stop immediately on repeated cursors, duplicate IDs, unchanged payloads, duplicate pages, or unclear termination signals.
+- Prefer a manual "Load more" step over automatic fan-out when the contract is not verified.
+- If the contract is not verified from docs, code, or runtime evidence, verify it first. Do not hallucinate endpoint behavior.
+
 ### Tech Stack
 
 - **Svelte 5** (latest with runes)

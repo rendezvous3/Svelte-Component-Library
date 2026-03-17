@@ -1,16 +1,18 @@
 <script lang="ts">
+  import type { HTMLInputAttributes } from "svelte/elements";
+
   export let label = "";
   export let type = "text";
   export let name = "";
   export let placeholder = "";
   export let value = "";
   export let helper = "";
-  export let autocomplete = "";
+  export let autocomplete: HTMLInputAttributes["autocomplete"] = undefined;
   export let required = false;
   export let disabled = false;
   export let error = "";
   export let invalid = false;
-  export let inputmode = "";
+  export let inputmode: HTMLInputAttributes["inputmode"] = undefined;
 </script>
 
 <label class="block space-y-2.5 text-sm text-slate-200">

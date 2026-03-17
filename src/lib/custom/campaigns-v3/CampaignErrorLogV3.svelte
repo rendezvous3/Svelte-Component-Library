@@ -1,5 +1,5 @@
 <script lang="ts">
-  export interface FailureRecord {
+  type FailureRecord = {
     failure_type: string;
     error_message: string | null;
     error_type: string | null;
@@ -10,7 +10,7 @@
     recipient: string | null;
     reason: Record<string, unknown> | null;
     created_at: string | null;
-  }
+  };
 
   export let failures: FailureRecord[];
 
@@ -19,7 +19,7 @@
     api_auth_error:       { label: "Auth failed",        color: "bg-rose-500/[0.12] text-rose-400" },
     api_validation_error: { label: "Validation error",   color: "bg-orange-500/[0.12] text-orange-400" },
     api_rate_limit:       { label: "Rate limited",       color: "bg-yellow-500/[0.10] text-yellow-400" },
-    api_server_error:     { label: "Resend outage",      color: "bg-yellow-500/[0.10] text-yellow-400" },
+    api_server_error:     { label: "Provider outage",    color: "bg-yellow-500/[0.10] text-yellow-400" },
     api_network_error:    { label: "Network error",      color: "bg-yellow-500/[0.10] text-yellow-400" },
     api_error:            { label: "API error",          color: "bg-orange-500/[0.12] text-orange-400" },
     bounced:              { label: "Bounced",            color: "bg-orange-500/[0.12] text-orange-400" },

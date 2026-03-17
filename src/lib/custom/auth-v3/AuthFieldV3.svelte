@@ -10,6 +10,8 @@
 </style>
 
 <script lang="ts">
+  import type { HTMLInputAttributes } from "svelte/elements";
+
   export let label = "";
   export let type = "text";
   export let name = "";
@@ -17,9 +19,9 @@
   export let value = "";
   export let helper = "";
   export let error = "";
-  export let autocomplete = "";
+  export let autocomplete: HTMLInputAttributes["autocomplete"] = undefined;
   export let required = false;
-  export let inputmode = "";
+  export let inputmode: HTMLInputAttributes["inputmode"] = undefined;
   export let invalid = false;
 
   let showPassword = false;
@@ -48,7 +50,7 @@
       {placeholder}
       {autocomplete}
       {required}
-      inputmode={inputmode || undefined}
+      {inputmode}
       bind:value
     />
 

@@ -45,7 +45,7 @@
           <path fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM7 7.5a1 1 0 0 1 2 0v3.5a1 1 0 0 1-2 0V7.5z" clip-rule="evenodd"/>
         </svg>
         <div class="pointer-events-none absolute bottom-full left-0 z-30 mb-2 w-44 rounded-lg border border-white/[0.07] bg-[#1a1a1a] px-2.5 py-2 text-[11px] leading-relaxed text-[#737373] opacity-0 transition-opacity group-hover/tip:opacity-100">
-          Receiving mail server confirmed receipt — tracked via async webhook from Resend
+          Receiving mail server confirmed receipt, recorded from provider delivery events when available
         </div>
       </div>
       <div class="mt-1.5 text-2xl font-semibold tabular-nums text-white">{delivered.toLocaleString()}</div>
@@ -73,7 +73,7 @@
           <path fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM7 7.5a1 1 0 0 1 2 0v3.5a1 1 0 0 1-2 0V7.5z" clip-rule="evenodd"/>
         </svg>
         <div class="pointer-events-none absolute bottom-full right-0 z-30 mb-2 w-44 rounded-lg border border-white/[0.07] bg-[#1a1a1a] px-2.5 py-2 text-[11px] leading-relaxed text-[#737373] opacity-0 transition-opacity group-hover/tip:opacity-100">
-          Link click events tracked via Resend redirect pixel
+          Link click events tracked by the active provider
         </div>
       </div>
       <div class="mt-1.5 text-2xl font-semibold tabular-nums text-white">{clicked.toLocaleString()}</div>
@@ -81,7 +81,7 @@
   </div>
 
   <!-- Divider -->
-  <div class="border-t border-white/[0.05]" />
+  <div class="border-t border-white/[0.05]"></div>
 
   <!-- Row 2: rates -->
   <div class="grid grid-cols-4 divide-x divide-white/[0.05]">
@@ -93,7 +93,7 @@
           <path fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM7 7.5a1 1 0 0 1 2 0v3.5a1 1 0 0 1-2 0V7.5z" clip-rule="evenodd"/>
         </svg>
         <div class="pointer-events-none absolute bottom-full left-0 z-30 mb-2 w-44 rounded-lg border border-white/[0.07] bg-[#1a1a1a] px-2.5 py-2 text-[11px] leading-relaxed text-[#737373] opacity-0 transition-opacity group-hover/tip:opacity-100">
-          Emails the Resend API accepted (HTTP 200) — does not mean delivered
+          Emails the provider API accepted, which does not guarantee delivery
         </div>
       </div>
       <div class="mt-1.5 text-lg font-medium tabular-nums text-[#737373]">{sent.toLocaleString()}</div>

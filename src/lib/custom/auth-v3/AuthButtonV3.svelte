@@ -2,6 +2,7 @@
   export let type: "button" | "submit" | "reset" = "button";
   export let disabled = false;
   export let loading = false;
+  export let formaction: string | undefined = undefined;
 </script>
 
 <button
@@ -12,6 +13,7 @@
   }`}
   {type}
   {disabled}
+  {formaction}
 >
   {#if loading}
     <span
