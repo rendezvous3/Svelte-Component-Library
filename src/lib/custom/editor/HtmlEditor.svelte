@@ -92,6 +92,14 @@
     e.preventDefault();
   }
 
+  export function loadContent(text: string) {
+    if (!view) return;
+    view.dispatch({
+      changes: { from: 0, to: view.state.doc.length, insert: text },
+    });
+    value = text;
+  }
+
   function insertVariable(token: string) {
     if (!view) return;
     const cursor = view.state.selection.main.head;
