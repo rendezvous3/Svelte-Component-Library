@@ -13,6 +13,7 @@
   let view: any;
   let debounceTimer: ReturnType<typeof setTimeout>;
   let variablesOpen = false;
+  let editorHeight = 600;
 
   const variables = [
     { token: "{{name}}", label: "Name" },
@@ -25,7 +26,7 @@
     const bgTheme = EditorView.theme({
       "&": { backgroundColor: "#141414", height: "100%" },
       ".cm-gutters": { backgroundColor: "#141414", border: "none" },
-      ".cm-content": { minHeight: "280px" },
+      ".cm-content": { minHeight: "600px" },
       ".cm-scroller": { overflow: "auto" },
     });
 
@@ -165,24 +166,33 @@
     </div>
   {/if}
 
-  <!-- Editor + Preview -->
-  <div class="grid grid-cols-2 divide-x divide-white/[0.07]" style="min-height: 400px;">
-    <!-- CodeMirror -->
+  <!-- Editor + Preview — iframe grows to full email height, editor scrolls internally -->
+  <div class="flex divide-x divide-white/[0.07]">
+    <!-- CodeMirror — matches iframe height, scrolls internally -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div
       bind:this={containerEl}
       on:drop={onDrop}
       on:dragover={onDragOver}
-      class="overflow-auto bg-[#141414] [&_.cm-editor]:h-full [&_.cm-editor]:outline-none"
+      class="w-1/2 bg-[#141414] [&_.cm-editor]:outline-none"
+      style="height: {editorHeight}px; align-self: flex-start;"
     ></div>
 
-    <!-- Live preview -->
-    <div class="bg-white">
+    <!-- Live preview — iframe sized to full email content -->
+    <div class="w-1/2 bg-white">
       <iframe
         title="Email preview"
         srcdoc={value}
-        class="h-full w-full border-0"
+        class="block w-full border-0"
+        style="min-height: 600px;"
         sandbox="allow-same-origin"
+        on:load={(e) => {
+          const f = e.currentTarget as HTMLIFrameElement;
+          const h = f.contentDocument?.documentElement?.scrollHeight ?? 600;
+          const clamped = Math.max(h, 600);
+          f.style.height = clamped + 'px';
+          editorHeight = clamped;
+        }}
       ></iframe>
     </div>
   </div>
